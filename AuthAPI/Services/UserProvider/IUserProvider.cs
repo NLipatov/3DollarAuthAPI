@@ -9,6 +9,6 @@ public interface IUserProvider
 {
     public Task<User?> GetUserByUsername(string username);
     public Task<List<User>> GetUsers();
-    public Task<User> AddNewUser(UserDTO request, List<Claim> claims);
+    public Task<User> AddNewUser(UserDTO request, List<UserClaim> claims);
     public Task AssignRefreshToken(string username, IRefreshToken refreshToken);
 }

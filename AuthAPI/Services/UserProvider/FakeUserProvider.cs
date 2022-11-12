@@ -34,28 +34,43 @@ public class FakeUserProvider : IUserProvider
             new User()
             {
                 Username = "tstark",
-                Claims = new List<Claim>
+                Claims = new List<UserClaim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, "tstark"),
-                    new Claim(ClaimTypes.Email, "stark@bizapps.com"),
-                    new Claim(ClaimTypes.GivenName, "Tony"),
-                    new Claim(ClaimTypes.Surname, "Stark"),
-                    new Claim(ClaimTypes.Role, "Admin")
+                    new UserClaim()
+                    {
+                        Type = ClaimTypes.Email,
+                        Value = "tony@mail.ru",
+                    }
                 },
+                //{
+                //    new Claim(ClaimTypes.NameIdentifier, "tstark"),
+                //    new Claim(ClaimTypes.Email, "stark@bizapps.com"),
+                //    new Claim(ClaimTypes.GivenName, "Tony"),
+                //    new Claim(ClaimTypes.Surname, "Stark"),
+                //    new Claim(ClaimTypes.Role, "Admin")
+                //},
                 PasswordHash = null,
                 PasswordSalt = null,
             },
             new User()
             {
                 Username = "jdark",
-                Claims = new List<Claim>
+                Claims = new List<UserClaim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, "jdark"),
-                    new Claim(ClaimTypes.Email, "dark@bizapps.com"),
-                    new Claim(ClaimTypes.GivenName, "Jane"),
-                    new Claim(ClaimTypes.Surname, "Dark"),
-                    new Claim(ClaimTypes.Role, "User")
+                    new UserClaim()
+                    {
+                        Type = ClaimTypes.Email,
+                        Value = "dark@mail.ru",
+                    }
                 },
+                //Claims = new List<UserClaim>
+                //{
+                //    new Claim(ClaimTypes.NameIdentifier, "jdark"),
+                //    new Claim(ClaimTypes.Email, "dark@bizapps.com"),
+                //    new Claim(ClaimTypes.GivenName, "Jane"),
+                //    new Claim(ClaimTypes.Surname, "Dark"),
+                //    new Claim(ClaimTypes.Role, "User")
+                //},
                 PasswordHash = null,
                 PasswordSalt = null,
             }
@@ -74,7 +89,7 @@ public class FakeUserProvider : IUserProvider
         }
     }
 
-    public async Task<User> AddNewUser(UserDTO request, List<Claim> claims)
+    public async Task<User> AddNewUser(UserDTO request, List<UserClaim> claims)
     {
         User? existingUser = (await GetUsers()).FirstOrDefault(x => x.Username == request.Username);
         if (existingUser != null) return existingUser;

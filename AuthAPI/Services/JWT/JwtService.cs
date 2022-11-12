@@ -1,4 +1,5 @@
 ﻿using AuthAPI.Models;
+using AuthAPI.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
@@ -23,7 +24,7 @@ namespace AuthAPI.Services.JWT
             (
                 issuer: _configuration["JWT:Issuer"],
                 audience: _configuration["JWT:Audience"],
-                claims: user.Claims,
+                claims: user.Claims.Select(x=> x.ToClaim()),
                 expires: DateTime.UtcNow.AddDays(1),
                 notBefore: DateTime.UtcNow,
                 signingCredentials: new SigningCredentials(
