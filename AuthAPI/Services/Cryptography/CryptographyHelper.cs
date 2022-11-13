@@ -1,5 +1,4 @@
-﻿using AuthAPI.Models;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 
 namespace AuthAPI.Services.Cryptography;

@@ -1,12 +1,11 @@
-﻿using AuthAPI.DTOs.User;
+﻿using AuthAPI.DTOs.Claims;
+using AuthAPI.DTOs.User;
 using AuthAPI.Models;
 using AuthAPI.Services.JWT;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-using System.Text.Json;
 
 namespace AuthAPI.Controllers;
 
@@ -31,9 +30,9 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Register")]
-    public async Task<ActionResult<User>> Register(UserDTO request)
+    public async Task<ActionResult<UserDTO>> Register(UserDTO request)
     {
-        return await _userProvider.RegisterUser(request, request.ExtractClaims());
+        return await _userProvider.RegisterUser(request, request.Claims.ExtractClaims());
     }
 
     /// <summary>
@@ -41,24 +40,14 @@ public class AuthController : ControllerBase
     /// По логину и паролю юзера из текущего userProvider можно получить JWT
     /// <paramref name="request"/>
     /// </summary>
-    [HttpPost("get-JWT")]
-    public async Task<ActionResult<string>> GetJWT(UserDTO request)
+    [HttpPost("get-token")]
+    public async Task<ActionResult<string>> GetToken(UserDTO request)
     {
         ValidationResult ValidationResult = await _credentialsValidator.ValidateCredentials(request);
 
         if (ValidationResult == ValidationResult.Success)
         {
-            string accessToken = _jwtService.GenerateAccessToken(await _userProvider.GetUserByUsernameAsync(request.Username)
-            ??
-            throw new Exception("Unexpected error occured on attempt to generate JWT"));
-
-            var refreshToken = _jwtService.GenerateRefreshToken();
-
-            await _userProvider.SaveRefreshToken(request.Username, refreshToken);
-
-            await SetRefreshToken(refreshToken, request);
-
-            return accessToken;
+            return await ProvideTokensAsync(request);
         }
         else
         {
@@ -80,7 +69,7 @@ public class AuthController : ControllerBase
         var refreshToken = Request.Cookies["refreshToken"];
 
         //В хранилище юзеров смотрим, есть ли у нас юзер, которому был выдан этот refreshToken
-        User? refreshTokenOwner = (await _userProvider.GetUsersAsync()).FirstOrDefault(x=>x.RefreshToken == refreshToken);
+        User? refreshTokenOwner = (await _userProvider.GetUsersAsync()).FirstOrDefault(x => x.RefreshToken == refreshToken);
 
         if (refreshTokenOwner == null)
         {
@@ -91,21 +80,17 @@ public class AuthController : ControllerBase
             return Unauthorized("Token expired");
         }
 
-        string accessToken = _jwtService.GenerateAccessToken(refreshTokenOwner);
+        JWTPair jwtPair = await _jwtService.CreateJWTPairAsync(_userProvider,refreshTokenOwner.Username);
 
-        var newRT = _jwtService.GenerateRefreshToken();
-
-        await SetRefreshToken(newRT,
+        await SetRefreshToken(jwtPair.RefreshToken,
             new UserDTO { Username = refreshTokenOwner.Username });
 
-        await _userProvider.AssignRefreshTokenAsync(refreshTokenOwner.Username, newRT);
-
-        return Ok(accessToken);
+        return Ok(jwtPair.AccessToken);
     }
 
     private async Task SetRefreshToken(IRefreshToken newRefreshToken, UserDTO userDTO)
     {
-        await _userProvider.AssignRefreshTokenAsync(userDTO.Username, newRefreshToken);
+        await _userProvider.SaveRefreshTokenAsync(userDTO.Username, newRefreshToken);
 
         var cookieOption = new CookieOptions
         {
@@ -114,5 +99,16 @@ public class AuthController : ControllerBase
         };
 
         Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOption);
+    }
+
+    private async Task<string> ProvideTokensAsync(UserDTO request)
+    {
+        JWTPair jwtPait = await _jwtService.CreateJWTPairAsync(_userProvider, request.Username);
+
+        await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPait.RefreshToken);
+
+        await SetRefreshToken(jwtPait.RefreshToken, request);
+
+        return jwtPait.AccessToken;
     }
 }

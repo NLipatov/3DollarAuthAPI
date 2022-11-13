@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-namespace AuthAPI.Models
+﻿namespace AuthAPI.Models
 {
     public interface IUser
     {

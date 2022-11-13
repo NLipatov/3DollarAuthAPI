@@ -1,6 +1,7 @@
 ﻿using AuthAPI.Models;
 using AuthAPI.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
+using AuthAPI.Services.UserProvider;
 using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,7 +19,40 @@ namespace AuthAPI.Services.JWT
         {
             _configuration = configuration;
         }
-        public string GenerateAccessToken(IUser user)
+
+        public ClaimsPrincipal ValidateAccessToken(string jwtToken)
+        {
+            IdentityModelEventSource.ShowPII = true;
+
+            SecurityToken validatedToken;
+            TokenValidationParameters validationParameters = new TokenValidationParameters();
+
+            validationParameters.ValidateLifetime = true;
+
+            validationParameters.ValidAudience = _configuration["JWT:Audience"]!.ToLower();
+            validationParameters.ValidIssuer = _configuration["JWT:Issuer"]!.ToLower();
+            validationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
+
+            ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
+
+
+            return principal;
+        }
+
+        public async Task<JWTPair> CreateJWTPairAsync(IUserProvider userProvider, string username)
+        {
+            string accessToken = GenerateAccessToken(await userProvider.GetUserByUsernameAsync(username)!);
+
+            IRefreshToken refreshToken = GenerateRefreshToken();
+
+            return new JWTPair()
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+            };
+        }
+
+        private string GenerateAccessToken(IUser user)
         {
             var token = new JwtSecurityToken
             (
@@ -35,7 +69,7 @@ namespace AuthAPI.Services.JWT
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public IRefreshToken GenerateRefreshToken()
+        private IRefreshToken GenerateRefreshToken()
         {
             return new RefreshToken()
             {
@@ -43,25 +77,6 @@ namespace AuthAPI.Services.JWT
                 Expires = DateTime.UtcNow.AddDays(7),
                 Created = DateTime.UtcNow,
             };
-        }
-
-        public ClaimsPrincipal ValidateAccessToken(string jwtToken)
-        {
-            IdentityModelEventSource.ShowPII = true;
-
-            SecurityToken validatedToken;
-            TokenValidationParameters validationParameters = new TokenValidationParameters();
-
-            validationParameters.ValidateLifetime = true;
-
-            validationParameters.ValidAudience = _configuration["JWT:Audience"].ToLower();
-            validationParameters.ValidIssuer = _configuration["JWT:Issuer"].ToLower();
-            validationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
-
-            ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
-
-
-            return principal;
         }
     }
 }

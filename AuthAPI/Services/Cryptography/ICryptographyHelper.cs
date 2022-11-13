@@ -1,6 +1,4 @@
-﻿using AuthAPI.Models;
-
-namespace AuthAPI.Services.Cryptography
+﻿namespace AuthAPI.Services.Cryptography
 {
     public interface ICryptographyHelper
     {

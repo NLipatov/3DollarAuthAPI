@@ -27,7 +27,7 @@ namespace AuthAPI.Services.UserCredentialsValidation
                 return ValidationResult.WrongUsername;
             }
 
-            if (!_cryptographyHelper.VerifyHash(request.Password, user.PasswordHash, user.PasswordSalt))
+            if (!_cryptographyHelper.VerifyHash(request.Password!, user.PasswordHash, user.PasswordSalt))
             {
                 return ValidationResult.WrongPassword;
             }

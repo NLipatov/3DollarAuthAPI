@@ -1,12 +1,12 @@
 ﻿using AuthAPI.DB.DBContext;
 using AuthAPI.DTOs.User;
+using AuthAPI.Mapping;
 using AuthAPI.Models;
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.JWT.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
+using AuthAPI.Services.ModelBuilder;
+using AuthAPI.Services.UserProvider.ServiceExceptions;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Authentication;
-using System.Text.Json;
 
 namespace AuthAPI.Services.UserProvider
 {
@@ -19,73 +19,63 @@ namespace AuthAPI.Services.UserProvider
             _authContext = authContext;
             _cryptographyHelper = cryptographyHelper;
         }
-        public async Task<User> RegisterUser(UserDTO request, List<UserClaim> claims)
+        /// <summary>
+        /// Registers a new user
+        /// </summary>
+        /// <param name="request">UserDTO with information, 
+        /// to be put in new User record in DB.
+        /// username must not be yet presented in DB</param>
+        /// <param name="claims"></param>
+        /// <returns></returns>
+        /// <exception cref="UserProviderException"></exception>
+        public async Task<UserDTO> RegisterUser(UserDTO request, List<UserClaim> claims)
         {
+            #region Checking if user with this username already exist.
             User? existingUser = (await GetUsersAsync()).FirstOrDefault(x => x.Username == request.Username);
-            if (existingUser != null) return existingUser;
+            if (existingUser != null)
+                throw new UserProviderException("User with this username already exists");
+            #endregion
 
-            _cryptographyHelper.CreateHashAndSalt(request.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            User user = ModelFactory.BuildUser(_cryptographyHelper, request, claims);
 
-            User newUser = new()
-            {
-                Username = request.Username,
-                Claims = claims,
-                PasswordHash = passwordHash,
-                PasswordSalt = passwordSalt,
-            };
+            await SaveUser(user);
 
-            await _authContext.AddAsync(newUser);
-            await _authContext.SaveChangesAsync();
-
-            newUser.PasswordHash = Array.Empty<byte>();
-            newUser.PasswordSalt = Array.Empty<byte>();
-            return newUser;
+            return user.ToDTO();
         }
 
-        public async Task AssignRefreshTokenAsync(string username, IRefreshToken refreshToken)
+        public async Task SaveRefreshTokenAsync(string username, IRefreshToken refreshToken)
         {
-            User? storedUser = await GetUserByUsernameAsync(username);
-            if (storedUser == null)
-            {
-                throw new NullReferenceException("User was not found");
-            }
-            else
-            {
-                storedUser.RefreshToken = refreshToken.Token;
-                storedUser.RefreshTokenCreated = refreshToken.Created;
-                storedUser.RefreshTokenExpires = refreshToken.Expires;
+            User user = _authContext.Users.First(x => x.Username == username);
 
-                await _authContext.SaveChangesAsync();
-            }
+            user.RefreshToken = refreshToken.Token;
+            user.RefreshTokenExpires = refreshToken.Expires;
+            user.RefreshTokenCreated = refreshToken.Created;
+
+            await _authContext.SaveChangesAsync();
         }
 
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            return await _authContext.Users.Include(x=>x.Claims).FirstAsync(x => x.Username == username);
+            return await _authContext.Users.Include(x => x.Claims).FirstAsync(x => x.Username == username);
         }
 
         public async Task<List<User>> GetUsersAsync()
         {
-            return await _authContext.Users.AsNoTracking().Include(x=>x.Claims).ToListAsync();
+            return await _authContext.Users.Include(x => x.Claims).ToListAsync();
         }
 
         public async Task SaveEncryptedRefreshToken(string username, IRefreshToken rToken)
         {
-            User user = await _authContext.Users.FirstAsync(x=>x.Username == username);
+            User user = await _authContext.Users.FirstAsync(x => x.Username == username);
 
             user.RefreshToken = rToken.Token;
 
             await _authContext.SaveChangesAsync();
         }
 
-        public async Task SaveRefreshToken(string username, IRefreshToken refreshToken)
+        private async Task SaveUser(User user)
         {
-            User user = _authContext.Users.First(x=>x.Username == username);
-
-            user.RefreshToken = refreshToken.Token;
-            user.RefreshTokenExpires = refreshToken.Expires;
-            user.RefreshTokenCreated = refreshToken.Created;
-
+            await _authContext.AddAsync(user);
             await _authContext.SaveChangesAsync();
         }
     }
