@@ -1,10 +1,12 @@
-﻿using AuthAPI.DTOs;
+﻿using AuthAPI.DTOs.User;
 using AuthAPI.Models;
 using AuthAPI.Services.JWT;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace AuthAPI.Controllers;
 
@@ -15,20 +17,23 @@ public class AuthController : ControllerBase
     private readonly IUserProvider _userProvider;
     private readonly IJwtService _jwtService;
     private readonly IUserCredentialsValidator _credentialsValidator;
-    private readonly IConfiguration _configuration;
 
     public AuthController
         (
             IUserProvider userProvider,
             IJwtService jwtService,
-            IUserCredentialsValidator credentialsValidator,
-            IConfiguration configuration
+            IUserCredentialsValidator credentialsValidator
         )
     {
         _userProvider = userProvider;
         _jwtService = jwtService;
         _credentialsValidator = credentialsValidator;
-        _configuration = configuration;
+    }
+
+    [HttpPost("Register")]
+    public async Task<ActionResult<User>> Register(UserDTO request)
+    {
+        return await _userProvider.RegisterUser(request, request.ExtractClaims());
     }
 
     /// <summary>
@@ -43,11 +48,13 @@ public class AuthController : ControllerBase
 
         if (ValidationResult == ValidationResult.Success)
         {
-            string accessToken = _jwtService.GenerateAccessToken(await _userProvider.GetUserByUsername(request.Username)
+            string accessToken = _jwtService.GenerateAccessToken(await _userProvider.GetUserByUsernameAsync(request.Username)
             ??
             throw new Exception("Unexpected error occured on attempt to generate JWT"));
 
             var refreshToken = _jwtService.GenerateRefreshToken();
+
+            await _userProvider.SaveRefreshToken(request.Username, refreshToken);
 
             await SetRefreshToken(refreshToken, request);
 
@@ -73,27 +80,32 @@ public class AuthController : ControllerBase
         var refreshToken = Request.Cookies["refreshToken"];
 
         //В хранилище юзеров смотрим, есть ли у нас юзер, которому был выдан этот refreshToken
-        User? refreshTokenOwner = (await _userProvider.GetUsers()).FirstOrDefault(x => x.RefreshToken == refreshToken);
+        User? refreshTokenOwner = (await _userProvider.GetUsersAsync()).FirstOrDefault(x=>x.RefreshToken == refreshToken);
 
         if (refreshTokenOwner == null)
         {
             return BadRequest("Invalid refresh token");
         }
-        else if (refreshTokenOwner.TokenExpires < DateTime.Now)
+        else if (refreshTokenOwner.RefreshTokenExpires < DateTime.UtcNow)
         {
             return Unauthorized("Token expired");
         }
 
         string accessToken = _jwtService.GenerateAccessToken(refreshTokenOwner);
-        await SetRefreshToken(_jwtService.GenerateRefreshToken(),
+
+        var newRT = _jwtService.GenerateRefreshToken();
+
+        await SetRefreshToken(newRT,
             new UserDTO { Username = refreshTokenOwner.Username });
+
+        await _userProvider.AssignRefreshTokenAsync(refreshTokenOwner.Username, newRT);
 
         return Ok(accessToken);
     }
 
     private async Task SetRefreshToken(IRefreshToken newRefreshToken, UserDTO userDTO)
     {
-        await _userProvider.AssignRefreshToken(userDTO.Username, newRefreshToken);
+        await _userProvider.AssignRefreshTokenAsync(userDTO.Username, newRefreshToken);
 
         var cookieOption = new CookieOptions
         {

@@ -37,13 +37,12 @@ namespace AuthAPI.Migrations
                         .HasColumnType("bytea");
 
                     b.Property<string>("RefreshToken")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime>("TokenCreated")
+                    b.Property<DateTime>("RefreshTokenCreated")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime>("TokenExpires")
+                    b.Property<DateTime>("RefreshTokenExpires")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Username")
@@ -60,6 +59,9 @@ namespace AuthAPI.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.Property<string>("Type")
                         .HasColumnType("text");

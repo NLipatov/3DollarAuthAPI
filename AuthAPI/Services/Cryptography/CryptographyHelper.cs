@@ -6,7 +6,7 @@ namespace AuthAPI.Services.Cryptography;
 
 public class CryptographyHelper : ICryptographyHelper
 {
-    public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+    public void CreateHashAndSalt(string password, out byte[] passwordHash, out byte[] passwordSalt)
     {
         using (var hmac = new HMACSHA512())
         {
@@ -15,12 +15,12 @@ public class CryptographyHelper : ICryptographyHelper
         }
     }
 
-    public bool VerifyPasswordHash(User user, string password, byte[] passwordHash, byte[] passwordSalt)
+    public bool VerifyHash(string originalData, byte[] storedHash, byte[] salt)
     {
-        using (var hmac = new HMACSHA512(user.PasswordSalt))
+        using (var hmac = new HMACSHA512(salt))
         {
-            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return computedHash.SequenceEqual(passwordHash);
+            var computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(originalData));
+            return computedHash.SequenceEqual(storedHash);
         }
     }
 }

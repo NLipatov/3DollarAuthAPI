@@ -12,9 +12,9 @@ namespace AuthAPI.Extensions
             services.AddTransient<ICryptographyHelper, CryptographyHelper>();
         }
 
-        public static void UseFakeUserProvider(this IServiceCollection services)
+        public static void UseUserProvider(this IServiceCollection services)
         {
-            services.AddSingleton<IUserProvider, FakeUserProvider>();
+            services.AddScoped<IUserProvider, UserProvider>();
         }
 
         public static void UseJWTGenerator(this IServiceCollection services)

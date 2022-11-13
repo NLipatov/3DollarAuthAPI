@@ -24,7 +24,7 @@ namespace AuthAPI.Services.JWT
             (
                 issuer: _configuration["JWT:Issuer"],
                 audience: _configuration["JWT:Audience"],
-                claims: user.Claims.Select(x=> x.ToClaim()),
+                claims: user.Claims.Select(x=> x.ToClaim()).ToList(),
                 expires: DateTime.UtcNow.AddDays(1),
                 notBefore: DateTime.UtcNow,
                 signingCredentials: new SigningCredentials(
@@ -41,7 +41,7 @@ namespace AuthAPI.Services.JWT
             {
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256)),
                 Expires = DateTime.UtcNow.AddDays(7),
-                Created = DateTime.Now,
+                Created = DateTime.UtcNow,
             };
         }
 

@@ -19,9 +19,9 @@ namespace AuthAPI.Migrations
                     Username = table.Column<string>(type: "text", nullable: false),
                     PasswordHash = table.Column<byte[]>(type: "bytea", nullable: false),
                     PasswordSalt = table.Column<byte[]>(type: "bytea", nullable: false),
-                    RefreshToken = table.Column<string>(type: "text", nullable: false),
-                    TokenCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    TokenExpires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    RefreshToken = table.Column<string>(type: "text", nullable: true),
+                    RefreshTokenCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    RefreshTokenExpires = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -34,6 +34,7 @@ namespace AuthAPI.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Type = table.Column<string>(type: "text", nullable: true),
+                    Name = table.Column<string>(type: "text", nullable: true),
                     Value = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<Guid>(type: "uuid", nullable: true)
                 },

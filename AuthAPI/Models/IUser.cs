@@ -8,8 +8,8 @@ namespace AuthAPI.Models
         byte[] PasswordHash { get; set; }
         byte[] PasswordSalt { get; set; }
         string Username { get; set; }
-        string RefreshToken { get; set; }
-        DateTime TokenCreated { get; set; }
-        DateTime TokenExpires { get; set; }
+        public string RefreshToken { get; set; }
+        DateTime RefreshTokenCreated { get; set; }
+        DateTime RefreshTokenExpires { get; set; }
     }
 }

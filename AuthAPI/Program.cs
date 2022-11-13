@@ -56,7 +56,8 @@ builder.Services.AddProxies();
 //Используем ICryptographyHelper
 builder.Services.UseCryptographyHelper();
 //Пока нет БД с юзерами, используем фейковый провайдер юзеров
-builder.Services.UseFakeUserProvider();
+//builder.Services.UseFakeUserProvider();
+builder.Services.UseUserProvider();
 //Используем генератор JWT IJwtService
 builder.Services.UseJWTGenerator();
 //Используем класс-валидатор для логина и пароля

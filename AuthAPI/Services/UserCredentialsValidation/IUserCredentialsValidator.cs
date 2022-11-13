@@ -1,4 +1,4 @@
-﻿using AuthAPI.DTOs;
+﻿using AuthAPI.DTOs.User;
 
 namespace AuthAPI.Services.UserCredentialsValidation
 {

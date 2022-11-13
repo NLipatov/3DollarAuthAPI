@@ -1,4 +1,4 @@
-﻿using AuthAPI.DTOs;
+﻿using AuthAPI.DTOs.User;
 using AuthAPI.Models;
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.UserProvider;
@@ -21,13 +21,13 @@ namespace AuthAPI.Services.UserCredentialsValidation
         }
         public async Task<ValidationResult> ValidateCredentials(UserDTO request)
         {
-            User? user = await _userProvider.GetUserByUsername(request.Username);
+            User? user = await _userProvider.GetUserByUsernameAsync(request.Username);
             if (user == null)
             {
                 return ValidationResult.WrongUsername;
             }
 
-            if (!_cryptographyHelper.VerifyPasswordHash(user, request.Password, user.PasswordHash, user.PasswordSalt))
+            if (!_cryptographyHelper.VerifyHash(request.Password, user.PasswordHash, user.PasswordSalt))
             {
                 return ValidationResult.WrongPassword;
             }
