@@ -64,6 +64,13 @@ builder.Services.UseJWTGenerator();
 builder.Services.UseUserCredentialsValidator();
 builder.Services.AddAuthorization();
 
+#region CORS setup
+builder.Services.AddCors(p => p.AddPolicy("loose-CORS", builder =>
+{
+    builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+}));
+#endregion
+
 var app = builder.Build();
 
 app.UseCors(MyAllowSpecificOrigins);
@@ -77,6 +84,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+//Используем определённую ранее политику CORS
+app.UseCors("loose-CORS");
 
 app.UseHttpsRedirection();
 
