@@ -36,7 +36,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("Get-claim")]
-    public async Task<ActionResult<TokenClaim>> ReadClaim(string token, string claimName)
+    public ActionResult<TokenClaim> ReadClaim(string token, string claimName)
     {
         TokenClaim? result = _jwtService.GetClaim(token, claimName);
         if (result == null)
@@ -47,16 +47,16 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("Get-token-claims")]
-    public async Task<ActionResult<List<TokenClaim>>> ReadClaims(string token)
+    public ActionResult<List<TokenClaim>> ReadClaims(string token)
     {
         return Ok(_jwtService.GetTokenClaims(token));
     }
 
     [HttpGet("Validate-access-token")]
-    public async Task<ActionResult> ValidateAccessToken(string accesstoken)
+    public ActionResult ValidateAccessToken(string accesstoken)
     {
         if (_jwtService.ValidateAccessToken(accesstoken))
-            Ok();
+            return Ok();
         return Unauthorized();
     }
 

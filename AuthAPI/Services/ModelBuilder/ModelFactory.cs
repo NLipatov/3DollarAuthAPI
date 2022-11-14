@@ -9,13 +9,13 @@ namespace AuthAPI.Services.ModelBuilder
         public static User BuildUser
             (ICryptographyHelper _cryptoHelper, 
             UserDTO dto,
-            List<UserClaim> claims)
+            List<UserClaim>? claims)
         {
-            _cryptoHelper.CreateHashAndSalt(dto.Password, out byte[] passwordHash, out byte[] passwordSalt);
+            _cryptoHelper.CreateHashAndSalt(dto.Password!, out byte[] passwordHash, out byte[] passwordSalt);
             return new User
             {
                 Username = dto.Username,
-                Claims = claims,
+                Claims = claims ?? null,
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt,
             };

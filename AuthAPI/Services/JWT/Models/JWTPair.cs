@@ -1,4 +1,5 @@
-﻿namespace AuthAPI.Services.JWT.Models
+﻿#nullable disable
+namespace AuthAPI.Services.JWT.Models
 {
     public class JWTPair
     {

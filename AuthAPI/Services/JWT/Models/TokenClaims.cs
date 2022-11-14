@@ -1,7 +1,7 @@
 ﻿#nullable disable
-namespace AuthAPI.DTOs.Claims
+namespace AuthAPI.Services.JWT.Models
 {
-    public class UserClaimsDTO
+    public class TokenClaim
     {
         public string Name { get; set; }
         public string Value { get; set; }

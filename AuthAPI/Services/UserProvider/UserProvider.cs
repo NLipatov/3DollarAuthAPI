@@ -28,7 +28,7 @@ namespace AuthAPI.Services.UserProvider
         /// <param name="claims"></param>
         /// <returns></returns>
         /// <exception cref="UserProviderException"></exception>
-        public async Task<UserDTO> RegisterUser(UserDTO request, List<UserClaim> claims)
+        public async Task<UserDTO> RegisterUser(UserDTO request, List<UserClaim>? claims)
         {
             #region Checking if user with this username already exist.
             User? existingUser = (await GetUsersAsync()).FirstOrDefault(x => x.Username == request.Username);
@@ -56,7 +56,7 @@ namespace AuthAPI.Services.UserProvider
 
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            return await _authContext.Users.Include(x => x.Claims).FirstAsync(x => x.Username == username);
+            return await _authContext.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == username);
         }
 
         public async Task<List<User>> GetUsersAsync()

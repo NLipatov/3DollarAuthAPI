@@ -8,6 +8,6 @@ public interface IUserProvider
 {
     public Task<User?> GetUserByUsernameAsync(string username);
     public Task<List<User>> GetUsersAsync();
-    public Task<UserDTO> RegisterUser(UserDTO request, List<UserClaim> claims);
+    public Task<UserDTO> RegisterUser(UserDTO request, List<UserClaim>? claims);
     public Task SaveRefreshTokenAsync(string username, IRefreshToken refreshToken);
 }

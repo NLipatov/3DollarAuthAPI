@@ -4,8 +4,8 @@
     {
         public static User ErasePassword(this User user)
         {
-            user.PasswordHash = null;
-            user.PasswordSalt = null;
+            user.PasswordHash = Array.Empty<byte>();
+            user.PasswordSalt = Array.Empty<byte>();
             return user;
         }
     }

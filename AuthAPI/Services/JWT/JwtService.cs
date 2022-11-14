@@ -2,7 +2,6 @@
 using AuthAPI.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserProvider;
-using Microsoft.IdentityModel.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -20,28 +19,76 @@ namespace AuthAPI.Services.JWT
             _configuration = configuration;
         }
 
-        public ClaimsPrincipal ValidateAccessToken(string jwtToken)
+        private string GenerateAccessToken(IUser user)
         {
-            IdentityModelEventSource.ShowPII = true;
+            var mySecret = _configuration["JWT:Key"]!;
+            var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(mySecret));
 
-            SecurityToken validatedToken;
-            TokenValidationParameters validationParameters = new TokenValidationParameters();
+            var myIssuer = _configuration["JWT:Issuer"];
+            var myAudience = _configuration["JWT:Audience"];
 
-            validationParameters.ValidateLifetime = true;
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(user?.Claims?.Select(x => x.ToClaim()).ToList()),
+                Expires = DateTime.UtcNow.AddDays(7),
+                Issuer = myIssuer,
+                Audience = myAudience,
+                SigningCredentials = new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature)
+            };
 
-            validationParameters.ValidAudience = _configuration["JWT:Audience"]!.ToLower();
-            validationParameters.ValidIssuer = _configuration["JWT:Issuer"]!.ToLower();
-            validationParameters.IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"]));
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
 
-            ClaimsPrincipal principal = new JwtSecurityTokenHandler().ValidateToken(jwtToken, validationParameters, out validatedToken);
+        public bool ValidateAccessToken(string token)
+        {
+            string mySecret = _configuration["JWT:Key"]!;
+            var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(mySecret));
 
+            var myIssuer = _configuration["JWT:Issuer"];
+            var myAudience = _configuration["JWT:Audience"];
 
-            return principal;
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = myIssuer,
+                    ValidAudience = myAudience,
+                    IssuerSigningKey = mySecurityKey
+                }, out SecurityToken validatedToken);
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
+        }
+        public TokenClaim? GetClaim(string token, string claimName)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
+
+            var stringClaimValue = securityToken?.Claims.FirstOrDefault(claim => claim.Type == claimName)?.Value;
+            return String.IsNullOrWhiteSpace(stringClaimValue) ? null : new TokenClaim { Name = claimName, Value = stringClaimValue };
+        }
+
+        public List<TokenClaim>? GetTokenClaims(string token)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var tokenS = handler.ReadToken(token) as JwtSecurityToken;
+            List<TokenClaim>? claimList = tokenS?.Claims?.Select(x => new TokenClaim { Name = x.Type, Value = x.Value }).ToList();
+            return claimList;
         }
 
         public async Task<JWTPair> CreateJWTPairAsync(IUserProvider userProvider, string username)
         {
-            string accessToken = GenerateAccessToken(await userProvider.GetUserByUsernameAsync(username)!);
+            string accessToken = GenerateAccessToken(await userProvider.GetUserByUsernameAsync(username) 
+                ?? throw new ArgumentException("User is not registered"));
 
             IRefreshToken refreshToken = GenerateRefreshToken();
 
@@ -50,23 +97,6 @@ namespace AuthAPI.Services.JWT
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
             };
-        }
-
-        private string GenerateAccessToken(IUser user)
-        {
-            var token = new JwtSecurityToken
-            (
-                issuer: _configuration["JWT:Issuer"],
-                audience: _configuration["JWT:Audience"],
-                claims: user.Claims.Select(x=> x.ToClaim()).ToList(),
-                expires: DateTime.UtcNow.AddDays(1),
-                notBefore: DateTime.UtcNow,
-                signingCredentials: new SigningCredentials(
-                    new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Key"])),
-                    SecurityAlgorithms.HmacSha512)
-            );
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
         private IRefreshToken GenerateRefreshToken()
