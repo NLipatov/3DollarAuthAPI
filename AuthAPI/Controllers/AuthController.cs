@@ -32,7 +32,32 @@ public class AuthController : ControllerBase
     [HttpPost("Register")]
     public async Task<ActionResult<UserDTO>> Register(UserDTO request)
     {
-        return await _userProvider.RegisterUser(request, request.Claims.ExtractClaims());
+        return await _userProvider.RegisterUser(request, request?.Claims?.ExtractClaims());
+    }
+
+    [HttpGet("Get-claim")]
+    public async Task<ActionResult<TokenClaim>> ReadClaim(string token, string claimName)
+    {
+        TokenClaim? result = _jwtService.GetClaim(token, claimName);
+        if (result == null)
+        {
+            return NotFound();
+        }
+        return Ok(result);
+    }
+
+    [HttpGet("Get-token-claims")]
+    public async Task<ActionResult<List<TokenClaim>>> ReadClaims(string token)
+    {
+        return Ok(_jwtService.GetTokenClaims(token));
+    }
+
+    [HttpGet("Validate-access-token")]
+    public async Task<ActionResult> ValidateAccessToken(string accesstoken)
+    {
+        if (_jwtService.ValidateAccessToken(accesstoken))
+            Ok();
+        return Unauthorized();
     }
 
     /// <summary>
@@ -80,7 +105,7 @@ public class AuthController : ControllerBase
             return Unauthorized("Token expired");
         }
 
-        JWTPair jwtPair = await _jwtService.CreateJWTPairAsync(_userProvider,refreshTokenOwner.Username);
+        JWTPair jwtPair = await _jwtService.CreateJWTPairAsync(_userProvider, refreshTokenOwner.Username);
 
         await SetRefreshToken(jwtPair.RefreshToken,
             new UserDTO { Username = refreshTokenOwner.Username });
