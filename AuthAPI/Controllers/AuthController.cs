@@ -53,11 +53,11 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("Validate-access-token")]
-    public ActionResult ValidateAccessToken(string accesstoken)
+    public ActionResult<string> ValidateAccessToken(string accesstoken)
     {
         if (_jwtService.ValidateAccessToken(accesstoken))
-            return Ok();
-        return Unauthorized();
+            return Ok("Token is valid");
+        return Unauthorized("Token is not valid");
     }
 
     /// <summary>
