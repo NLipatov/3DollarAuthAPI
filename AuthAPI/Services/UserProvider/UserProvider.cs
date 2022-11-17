@@ -78,5 +78,16 @@ namespace AuthAPI.Services.UserProvider
             await _authContext.AddAsync(user);
             await _authContext.SaveChangesAsync();
         }
+
+        public async Task<List<User>> GetUsersOnline()
+        {
+            var usersOnline = await _authContext.Users.ToListAsync();
+            return usersOnline;
+        }
+
+        public Task RegisterOnlineUser()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

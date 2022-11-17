@@ -6,6 +6,8 @@ namespace AuthAPI.Services.UserProvider;
 
 public interface IUserProvider
 {
+    public Task RegisterOnlineUser();
+    public Task<List<User>> GetUsersOnline();
     public Task<User?> GetUserByUsernameAsync(string username);
     public Task<List<User>> GetUsersAsync();
     public Task<UserDTO> RegisterUser(UserDTO request, List<UserClaim>? claims);
