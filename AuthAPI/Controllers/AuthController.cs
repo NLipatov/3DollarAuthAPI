@@ -6,6 +6,7 @@ using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace AuthAPI.Controllers;
 
@@ -72,7 +73,7 @@ public class AuthController : ControllerBase
 
         if (ValidationResult == ValidationResult.Success)
         {
-            return await ProvideTokensAsync(request);
+            return await ProvideAccessAndRefreshTokensAsync(request);
         }
         else
         {
@@ -113,6 +114,26 @@ public class AuthController : ControllerBase
         return Ok(jwtPair.AccessToken);
     }
 
+    [HttpPost("refresh-tokens-explicitly")]
+    public async Task<ActionResult<string>> RefreshTokensExplicitly(string refreshToken)
+    {
+        //В хранилище юзеров смотрим, есть ли у нас юзер, которому был выдан этот refreshToken
+        User? refreshTokenOwner = (await _userProvider.GetUsersAsync()).FirstOrDefault(x => x.RefreshToken == refreshToken);
+
+        if (refreshTokenOwner == null)
+        {
+            return BadRequest("Invalid refresh token");
+        }
+        else if (refreshTokenOwner.RefreshTokenExpires < DateTime.UtcNow)
+        {
+            return Unauthorized("Token expired");
+        }
+
+        JWTPair jwtPair = await _jwtService.CreateJWTPairAsync(_userProvider, refreshTokenOwner.Username);
+
+        return Ok(jwtPair);
+    }
+
     private async Task SetRefreshToken(IRefreshToken newRefreshToken, UserDTO userDTO)
     {
         await _userProvider.SaveRefreshTokenAsync(userDTO.Username, newRefreshToken);
@@ -126,6 +147,11 @@ public class AuthController : ControllerBase
         Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOption);
     }
 
+    /// <summary>
+    /// Provides an access token in response payload and stores refresh token in Cookies
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     private async Task<string> ProvideTokensAsync(UserDTO request)
     {
         JWTPair jwtPait = await _jwtService.CreateJWTPairAsync(_userProvider, request.Username);
@@ -135,5 +161,19 @@ public class AuthController : ControllerBase
         await SetRefreshToken(jwtPait.RefreshToken, request);
 
         return jwtPait.AccessToken;
+    }
+
+    /// <summary>
+    /// Provides both access and refresh token in response payload
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    private async Task<string> ProvideAccessAndRefreshTokensAsync(UserDTO request)
+    {
+        JWTPair jwtPait = await _jwtService.CreateJWTPairAsync(_userProvider, request.Username);
+
+        await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPait.RefreshToken);
+
+        return JsonSerializer.Serialize(jwtPait);
     }
 }
