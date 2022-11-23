@@ -2,6 +2,7 @@
 using AuthAPI.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserProvider;
+using LimpShared.Authentification;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -90,7 +91,7 @@ namespace AuthAPI.Services.JWT
             string accessToken = GenerateAccessToken(await userProvider.GetUserByUsernameAsync(username) 
                 ?? throw new ArgumentException("User is not registered"));
 
-            IRefreshToken refreshToken = GenerateRefreshToken();
+            RefreshToken refreshToken = GenerateRefreshToken();
 
             return new JWTPair()
             {
@@ -99,7 +100,7 @@ namespace AuthAPI.Services.JWT
             };
         }
 
-        private IRefreshToken GenerateRefreshToken()
+        private RefreshToken GenerateRefreshToken()
         {
             return new RefreshToken()
             {

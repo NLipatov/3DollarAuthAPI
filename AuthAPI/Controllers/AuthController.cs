@@ -5,6 +5,7 @@ using AuthAPI.Services.JWT;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
+using LimpShared.Authentification;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 
@@ -134,7 +135,7 @@ public class AuthController : ControllerBase
         return Ok(jwtPair);
     }
 
-    private async Task SetRefreshToken(IRefreshToken newRefreshToken, UserDTO userDTO)
+    private async Task SetRefreshToken(RefreshToken newRefreshToken, UserDTO userDTO)
     {
         await _userProvider.SaveRefreshTokenAsync(userDTO.Username, newRefreshToken);
 

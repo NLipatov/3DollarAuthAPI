@@ -6,6 +6,7 @@ using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.ModelBuilder;
 using AuthAPI.Services.UserProvider.ServiceExceptions;
+using LimpShared.Authentification;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.Services.UserProvider
@@ -43,7 +44,7 @@ namespace AuthAPI.Services.UserProvider
             return user.ToDTO();
         }
 
-        public async Task SaveRefreshTokenAsync(string username, IRefreshToken refreshToken)
+        public async Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken)
         {
             User user = _authContext.Users.First(x => x.Username == username);
 
@@ -64,7 +65,7 @@ namespace AuthAPI.Services.UserProvider
             return await _authContext.Users.Include(x => x.Claims).ToListAsync();
         }
 
-        public async Task SaveEncryptedRefreshToken(string username, IRefreshToken rToken)
+        public async Task SaveEncryptedRefreshToken(string username, RefreshToken rToken)
         {
             User user = await _authContext.Users.FirstAsync(x => x.Username == username);
 
