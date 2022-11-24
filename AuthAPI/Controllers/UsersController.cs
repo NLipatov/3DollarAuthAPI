@@ -64,14 +64,15 @@ namespace AuthAPI.Controllers
 
 
             JwtSecurityToken securityToken = tokenHandler.ReadToken(accessToken) as JwtSecurityToken;
+            var username = securityToken!.Claims.FirstOrDefault(x => x.Type == "unique_name")?.Value ?? "Anonymous";
 
-            return Ok(
-                new TokenRelatedOperationResult
-                {
-                    ResultType = TokenRelatedOperationResultType.Success,
-                    Username = securityToken!.Claims.FirstOrDefault(x => x.Type == "unique_name")?.Value ?? "Anonymous",
-                });
-                
+            var result = new TokenRelatedOperationResult
+            {
+                ResultType = TokenRelatedOperationResultType.Success,
+                Username = username,
+            };
+
+            return Ok(result);
         }
     }
 }
