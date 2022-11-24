@@ -2,6 +2,7 @@
 using AuthAPI.Mapping;
 using AuthAPI.Services.JWT;
 using AuthAPI.Services.UserProvider;
+using LimpShared.Authentification;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -32,14 +33,45 @@ namespace AuthAPI.Controllers
         }
 
         [HttpGet("GetUserName")]
-        public async Task<ActionResult<string>> GetUserName(string accessToken)
+        public async Task<ActionResult<TokenRelatedOperationResult>> GetUserName(string accessToken)
         {
-            bool isTokenValid = _jwtService.ValidateAccessToken(accessToken);
-
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+
+            if(!tokenHandler.CanReadToken(accessToken))
+            {
+                return Unauthorized(new TokenRelatedOperationResult
+                {
+                    ResultType = TokenRelatedOperationResultType.Fail,
+                    FailureType = FailureType.InvalidToken
+                });
+            }
+
+            if (tokenHandler.ReadToken(accessToken).ValidTo < DateTime.UtcNow)
+            {
+                return Unauthorized(new TokenRelatedOperationResult
+                {
+                    ResultType = TokenRelatedOperationResultType.Fail,
+                    FailureType = FailureType.ExpiredToken,
+                });
+            }
+
+            if (!_jwtService.ValidateAccessToken(accessToken))
+                return Unauthorized(new TokenRelatedOperationResult
+                {
+                    ResultType = TokenRelatedOperationResultType.Fail,
+                    FailureType = FailureType.InvalidToken
+                });
+
+
             JwtSecurityToken securityToken = tokenHandler.ReadToken(accessToken) as JwtSecurityToken;
 
-            return securityToken!.Claims.FirstOrDefault(x => x.Type == "unique_name")?.Value ?? "Anonymous";
+            return Ok(
+                new TokenRelatedOperationResult
+                {
+                    ResultType = TokenRelatedOperationResultType.Success,
+                    Username = securityToken!.Claims.FirstOrDefault(x => x.Type == "unique_name")?.Value ?? "Anonymous",
+                });
+                
         }
     }
 }

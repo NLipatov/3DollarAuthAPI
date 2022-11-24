@@ -1,7 +1,4 @@
 ﻿using AuthAPI.Models;
-using AutoMapper.Internal;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Security.Claims;
 
 namespace AuthAPI.DTOs.Claims
@@ -15,7 +12,7 @@ namespace AuthAPI.DTOs.Claims
             foreach (var dto in dtos)
             {
                 string? claimType = typeof(ClaimTypes)?.GetField(dto.Name)?.GetValue(null)?.ToString();
-                if(!string.IsNullOrWhiteSpace(claimType))
+                if (!string.IsNullOrWhiteSpace(claimType))
                 {
                     claims.Add(
                     new UserClaim
