@@ -7,6 +7,7 @@ using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
 using LimpShared.Authentification;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using System.Text.Json;
 
 namespace AuthAPI.Controllers;
@@ -55,11 +56,20 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("Validate-access-token")]
-    public ActionResult<string> ValidateAccessToken(string accesstoken)
+    public ActionResult<TokenRelatedOperationResult> ValidateAccessToken(string accesstoken)
     {
         if (_jwtService.ValidateAccessToken(accesstoken))
-            return Ok("Token is valid");
-        return Unauthorized("Token is not valid");
+            return Ok(new TokenRelatedOperationResult
+            {
+                ResultType = TokenRelatedOperationResultType.Success,
+                Message = "Token is valid",
+            });
+
+        return Unauthorized(new TokenRelatedOperationResult
+        {
+            ResultType = TokenRelatedOperationResultType.Fail,
+            Message = "Token is not valid",
+        });
     }
 
     /// <summary>
@@ -116,10 +126,12 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh-tokens-explicitly")]
-    public async Task<ActionResult<string>> RefreshTokensExplicitly(string refreshToken)
+    public async Task<ActionResult<string>> RefreshTokensExplicitly(RefreshToken refreshToken)
     {
         //В хранилище юзеров смотрим, есть ли у нас юзер, которому был выдан этот refreshToken
-        User? refreshTokenOwner = (await _userProvider.GetUsersAsync()).FirstOrDefault(x => x.RefreshToken == refreshToken);
+        var users = await _userProvider.GetUsersAsync();
+
+        User? refreshTokenOwner = users.FirstOrDefault(x => x.RefreshToken == refreshToken.Token);
 
         if (refreshTokenOwner == null)
         {
@@ -132,7 +144,9 @@ public class AuthController : ControllerBase
 
         JWTPair jwtPair = await _jwtService.CreateJWTPairAsync(_userProvider, refreshTokenOwner.Username);
 
-        return Ok(jwtPair);
+        await _userProvider.SaveRefreshTokenAsync(refreshTokenOwner.Username, jwtPair.RefreshToken);
+
+        return Ok(JsonSerializer.Serialize(jwtPair));
     }
 
     private async Task SetRefreshToken(RefreshToken newRefreshToken, UserDTO userDTO)

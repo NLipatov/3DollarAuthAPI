@@ -32,7 +32,7 @@ namespace AuthAPI.Services.JWT
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(user?.Claims?.Select(x => x.ToClaim()).ToList()),
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddMinutes(5),
                 Issuer = myIssuer,
                 Audience = myAudience,
                 SigningCredentials = new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature)

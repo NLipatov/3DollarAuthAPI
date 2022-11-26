@@ -6,6 +6,7 @@ using LimpShared.Authentification;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace AuthAPI.Controllers
 {
@@ -33,34 +34,34 @@ namespace AuthAPI.Controllers
         }
 
         [HttpGet("GetUserName")]
-        public async Task<ActionResult<TokenRelatedOperationResult>> GetUserName(string accessToken)
+        public async Task<ActionResult<string>> GetUserName(string accessToken)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
             if(!tokenHandler.CanReadToken(accessToken))
             {
-                return Unauthorized(new TokenRelatedOperationResult
+                return Unauthorized(JsonSerializer.Serialize(new TokenRelatedOperationResult
                 {
                     ResultType = TokenRelatedOperationResultType.Fail,
                     FailureType = FailureType.InvalidToken
-                });
+                }));
             }
 
             if (tokenHandler.ReadToken(accessToken).ValidTo < DateTime.UtcNow)
             {
-                return Unauthorized(new TokenRelatedOperationResult
+                return Unauthorized(JsonSerializer.Serialize(new TokenRelatedOperationResult
                 {
                     ResultType = TokenRelatedOperationResultType.Fail,
                     FailureType = FailureType.ExpiredToken,
-                });
+                }));
             }
 
             if (!_jwtService.ValidateAccessToken(accessToken))
-                return Unauthorized(new TokenRelatedOperationResult
+                return Unauthorized(JsonSerializer.Serialize(new TokenRelatedOperationResult
                 {
                     ResultType = TokenRelatedOperationResultType.Fail,
                     FailureType = FailureType.InvalidToken
-                });
+                }));
 
 
             JwtSecurityToken securityToken = tokenHandler.ReadToken(accessToken) as JwtSecurityToken;
@@ -72,7 +73,7 @@ namespace AuthAPI.Controllers
                 Username = username,
             };
 
-            return Ok(result);
+            return Ok(JsonSerializer.Serialize(result));
         }
     }
 }
