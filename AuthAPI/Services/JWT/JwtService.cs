@@ -55,6 +55,7 @@ namespace AuthAPI.Services.JWT
             {
                 tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
+                    ClockSkew = TimeSpan.Zero,
                     ValidateIssuerSigningKey = true,
                     ValidateIssuer = true,
                     ValidateAudience = true,
