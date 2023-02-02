@@ -3,6 +3,7 @@ using AuthAPI.Mapping;
 using AuthAPI.Services.JWT;
 using AuthAPI.Services.UserProvider;
 using LimpShared.Authentification;
+using LimpShared.ResultTypeEnum;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -42,7 +43,7 @@ namespace AuthAPI.Controllers
             {
                 return Unauthorized(JsonSerializer.Serialize(new TokenRelatedOperationResult
                 {
-                    ResultType = TokenRelatedOperationResultType.Fail,
+                    ResultType = OperationResultType.Fail,
                     FailureType = FailureType.InvalidToken
                 }));
             }
@@ -51,7 +52,7 @@ namespace AuthAPI.Controllers
             {
                 return Unauthorized(JsonSerializer.Serialize(new TokenRelatedOperationResult
                 {
-                    ResultType = TokenRelatedOperationResultType.Fail,
+                    ResultType = OperationResultType.Fail,
                     FailureType = FailureType.ExpiredToken,
                 }));
             }
@@ -59,7 +60,7 @@ namespace AuthAPI.Controllers
             if (!_jwtService.ValidateAccessToken(accessToken))
                 return Unauthorized(JsonSerializer.Serialize(new TokenRelatedOperationResult
                 {
-                    ResultType = TokenRelatedOperationResultType.Fail,
+                    ResultType = OperationResultType.Fail,
                     FailureType = FailureType.InvalidToken
                 }));
 
@@ -69,7 +70,7 @@ namespace AuthAPI.Controllers
 
             var result = new TokenRelatedOperationResult
             {
-                ResultType = TokenRelatedOperationResultType.Success,
+                ResultType = OperationResultType.Success,
                 Username = username,
             };
 

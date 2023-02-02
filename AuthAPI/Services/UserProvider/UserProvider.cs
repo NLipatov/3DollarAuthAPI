@@ -7,6 +7,7 @@ using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.ModelBuilder;
 using AuthAPI.Services.UserProvider.ServiceExceptions;
 using LimpShared.Authentification;
+using LimpShared.DTOs.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.Services.UserProvider
@@ -29,19 +30,28 @@ namespace AuthAPI.Services.UserProvider
         /// <param name="claims"></param>
         /// <returns></returns>
         /// <exception cref="UserProviderException"></exception>
-        public async Task<UserDTO> RegisterUser(UserDTO request, List<UserClaim>? claims)
+        public async Task<UserOperationResult> RegisterUser(UserDTO request, List<UserClaim>? claims)
         {
             #region Checking if user with this username already exist.
             User? existingUser = (await GetUsersAsync()).FirstOrDefault(x => x.Username == request.Username);
             if (existingUser != null)
-                throw new UserProviderException("User with this username already exists");
+                return new UserOperationResult
+                {
+                    SystemMessage = "User with this username already exists",
+                    UserDTO = null,
+                    ResultType = LimpShared.ResultTypeEnum.OperationResultType.Fail
+                };
             #endregion
 
             User user = ModelFactory.BuildUser(_cryptographyHelper, request, claims);
 
             await SaveUser(user);
 
-            return user.ToDTO();
+            return new UserOperationResult()
+            {
+                SystemMessage = "Success",
+                UserDTO = user.ToDTO(),
+            };
         }
 
         public async Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken)

@@ -6,6 +6,8 @@ using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
 using LimpShared.Authentification;
+using LimpShared.DTOs.User;
+using LimpShared.ResultTypeEnum;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
@@ -33,7 +35,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Register")]
-    public async Task<ActionResult<UserDTO>> Register(UserDTO request)
+    public async Task<ActionResult<UserOperationResult>> Register(UserDTO request)
     {
         return await _userProvider.RegisterUser(request, request?.Claims?.ExtractClaims());
     }
@@ -61,13 +63,13 @@ public class AuthController : ControllerBase
         if (_jwtService.ValidateAccessToken(accesstoken))
             return Ok(new TokenRelatedOperationResult
             {
-                ResultType = TokenRelatedOperationResultType.Success,
+                ResultType = OperationResultType.Success,
                 Message = "Token is valid",
             });
 
         return Unauthorized(new TokenRelatedOperationResult
         {
-            ResultType = TokenRelatedOperationResultType.Fail,
+            ResultType = OperationResultType.Fail,
             Message = "Token is not valid",
         });
     }
