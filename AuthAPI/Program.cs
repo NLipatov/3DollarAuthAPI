@@ -1,6 +1,7 @@
 using AspNetCore.Proxy;
 using AuthAPI.DB.DBContext;
 using AuthAPI.Extensions;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,6 +65,36 @@ builder.Services.UseJWTGenerator();
 builder.Services.UseUserCredentialsValidator();
 builder.Services.AddAuthorization();
 
+builder.Services.AddRazorPages(opts =>
+{
+    // we don't care about antiforgery in the demo
+    opts.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
+});
+
+// Use the in-memory implementation of IDistributedCache.
+builder.Services.AddMemoryCache();
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+        {
+            // Set a short timeout for easy testing.
+            options.IdleTimeout = TimeSpan.FromMinutes(2);
+            options.Cookie.HttpOnly = true;
+            // Strict SameSite mode is required because the default mode used
+            // by ASP.NET Core 3 isn't understood by the Conformance Tool
+            // and breaks conformance testing
+            options.Cookie.SameSite = SameSiteMode.Unspecified;
+        });
+
+builder.Services.AddFido2(options =>
+{
+    options.ServerDomain = builder.Configuration["fido2:serverDomain"];
+    options.ServerName = "FIDO2 Test";
+    options.Origins = builder.Configuration.GetSection("fido2:origins").Get<HashSet<string>>();
+    options.TimestampDriftTolerance = builder.Configuration.GetValue<int>("fido2:timestampDriftTolerance");
+    options.MDSCacheDirPath = builder.Configuration["fido2:MDSCacheDirPath"];
+});
+
 #region CORS setup
 builder.Services.AddCors(p => p.AddPolicy("loose-CORS", builder =>
 {
@@ -74,6 +105,7 @@ builder.Services.AddCors(p => p.AddPolicy("loose-CORS", builder =>
 var app = builder.Build();
 
 app.UseCors(MyAllowSpecificOrigins);
+app.UseSession();
 
 app.UseAuthorization();
 app.UseAuthentication();
