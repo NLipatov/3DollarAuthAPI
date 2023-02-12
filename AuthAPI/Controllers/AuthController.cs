@@ -37,6 +37,7 @@ public class AuthController : ControllerBase
     [HttpPost("Register")]
     public async Task<ActionResult<UserOperationResult>> Register(UserDTO request)
     {
+        string contextId = HttpContext.Session.Id;
         return await _userProvider.RegisterUser(request, request?.Claims?.ExtractClaims());
     }
 
