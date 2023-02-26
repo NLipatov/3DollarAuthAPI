@@ -7,7 +7,7 @@ public class User : IUser
     [Key]
     public Guid Id { get; set; }
     public string Username { get; set; } = "N/A";
-    public List<UserClaim>? Claims { get; set; }
+    public List<UserClaim>? Claims { get; set; } = new();
     public byte[] PasswordHash { get; set; } = Array.Empty<byte>();
     public byte[] PasswordSalt { get; set; } = Array.Empty<byte>();
     public string? RefreshToken { get; set; }

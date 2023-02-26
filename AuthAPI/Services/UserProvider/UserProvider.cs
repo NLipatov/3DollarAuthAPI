@@ -154,5 +154,29 @@ namespace AuthAPI.Services.UserProvider
 
             return newFidoUser;
         }
+
+        public async Task SetUserPublicKeyAsync(string PEMEncodedRSAPublicKey, string username)
+        {
+            User? targetUser = await _authContext.Users.Include(x=>x.Claims).FirstOrDefaultAsync(x => x.Username == username);
+            if (targetUser == null)
+                throw new ArgumentException($"There is no user with specified username: '{username}'");
+
+            UserClaim? PublicKeyClaim = targetUser.Claims.FirstOrDefault(x=> x.Type == "RSA Public Key");
+            if (PublicKeyClaim == null)
+            {
+                targetUser.Claims.Add(new UserClaim
+                {
+                    Name = "PublicKey",
+                    Type = "RSA Public Key",
+                    Value = PEMEncodedRSAPublicKey,
+                });
+            }
+            else
+            {
+                PublicKeyClaim.Value = PEMEncodedRSAPublicKey;
+            }
+
+            await _authContext.SaveChangesAsync();
+        }
     }
 }

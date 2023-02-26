@@ -21,4 +21,5 @@ public interface IUserProvider
     public Task<List<User>> GetUsersAsync();
     public Task<UserOperationResult> RegisterUser(UserDTO request, List<UserClaim>? claims);
     public Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken);
+    public Task SetUserPublicKeyAsync(string PEMEncodedRSAPublicKey, string username);
 }
