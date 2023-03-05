@@ -76,10 +76,17 @@ namespace AuthAPI.Controllers
 
             return Ok(JsonSerializer.Serialize(result));
         }
-        [HttpPost("SetRSAPublicKey")]
+
+        [HttpPost("RSAPublic")]
         public async Task SetRSAPublicKey(PublicKeyDTO publicKeyDTO)
         {
-            await _userProvider.SetUserPublicKeyAsync(publicKeyDTO.Key, publicKeyDTO.Username);
+            await _userProvider.SetRSAPublic(publicKeyDTO.Key, publicKeyDTO.Username);
+        }
+
+        [HttpGet("RSAPublic/{username}")]
+        public async Task<string?> GetRSAPublicKey(string username)
+        {
+            return await _userProvider.GetRSAPublic(username);
         }
     }
 }

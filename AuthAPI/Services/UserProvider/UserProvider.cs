@@ -155,16 +155,16 @@ namespace AuthAPI.Services.UserProvider
             return newFidoUser;
         }
 
-        public async Task SetUserPublicKeyAsync(string PEMEncodedRSAPublicKey, string username)
+        public async Task SetRSAPublic(string PEMEncodedRSAPublicKey, string username)
         {
             User? targetUser = await _authContext.Users.Include(x=>x.Claims).FirstOrDefaultAsync(x => x.Username == username);
             if (targetUser == null)
                 throw new ArgumentException($"There is no user with specified username: '{username}'");
 
-            UserClaim? PublicKeyClaim = targetUser.Claims.FirstOrDefault(x=> x.Type == "RSA Public Key");
-            if (PublicKeyClaim == null)
+            UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x=> x.Type == "RSA Public Key");
+            if (publicKeyClaim == null)
             {
-                targetUser.Claims.Add(new UserClaim
+                targetUser.Claims?.Add(new UserClaim
                 {
                     Name = "PublicKey",
                     Type = "RSA Public Key",
@@ -173,10 +173,21 @@ namespace AuthAPI.Services.UserProvider
             }
             else
             {
-                PublicKeyClaim.Value = PEMEncodedRSAPublicKey;
+                publicKeyClaim.Value = PEMEncodedRSAPublicKey;
             }
 
             await _authContext.SaveChangesAsync();
+        }
+
+        public async Task<string?> GetRSAPublic(string username)
+        {
+            User? targetUser = await _authContext.Users.Include(x=>x.Claims).FirstOrDefaultAsync(x=>x.Username == username);
+            if(targetUser == null)
+                throw new ArgumentException($"There is no user with specified username: '{username}'");
+
+            UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
+
+            return publicKeyClaim?.Value;
         }
     }
 }
