@@ -155,7 +155,7 @@ namespace AuthAPI.Services.UserProvider
             return newFidoUser;
         }
 
-        public async Task SetRSAPublic(string PEMEncodedRSAPublicKey, string username)
+        public async Task SetRSAPublic(string username, string PEMEncodedRSAPublicKey)
         {
             User? targetUser = await _authContext.Users.Include(x=>x.Claims).FirstOrDefaultAsync(x => x.Username == username);
             if (targetUser == null)
