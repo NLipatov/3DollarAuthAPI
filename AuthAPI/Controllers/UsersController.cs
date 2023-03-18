@@ -3,10 +3,10 @@ using AuthAPI.Mapping;
 using AuthAPI.Services.JWT;
 using AuthAPI.Services.UserProvider;
 using LimpShared.Authentification;
+using LimpShared.DTOs.PublicKey;
 using LimpShared.ResultTypeEnum;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Text.Json;
 
 namespace AuthAPI.Controllers
@@ -39,7 +39,7 @@ namespace AuthAPI.Controllers
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
-            if(!tokenHandler.CanReadToken(accessToken))
+            if (!tokenHandler.CanReadToken(accessToken))
             {
                 return Unauthorized(JsonSerializer.Serialize(new TokenRelatedOperationResult
                 {
@@ -75,6 +75,18 @@ namespace AuthAPI.Controllers
             };
 
             return Ok(JsonSerializer.Serialize(result));
+        }
+
+        [HttpPost("RSAPublic")]
+        public async Task SetRSAPublicKey(PublicKeyDTO publicKeyDTO)
+        {
+            await _userProvider.SetRSAPublic(publicKeyDTO.Key, publicKeyDTO.Username);
+        }
+
+        [HttpGet("RSAPublic/{username}")]
+        public async Task<string?> GetRSAPublicKey(string username)
+        {
+            return await _userProvider.GetRSAPublic(username);
         }
     }
 }

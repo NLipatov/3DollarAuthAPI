@@ -1,4 +1,5 @@
 ﻿using AuthAPI.Models;
+using AuthAPI.Models.Fido2;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.DB.DBContext
@@ -13,6 +14,9 @@ namespace AuthAPI.DB.DBContext
         private IConfiguration _configuration;
 
         public DbSet<User> Users { get; set; }
+        public DbSet<UserClaim> UsersClaim { get; set; }
+        public DbSet<FidoUser> FidoUsers { get; set; }
+        public DbSet<FidoCredential> StoredCredentials { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
