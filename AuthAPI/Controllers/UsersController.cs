@@ -80,7 +80,7 @@ namespace AuthAPI.Controllers
         [HttpPost("RSAPublic")]
         public async Task SetRSAPublicKey(PublicKeyDTO publicKeyDTO)
         {
-            await _userProvider.SetRSAPublic(publicKeyDTO.Key, publicKeyDTO.Username);
+            await _userProvider.SetRSAPublic(publicKeyDTO);
         }
 
         [HttpGet("RSAPublic/{username}")]

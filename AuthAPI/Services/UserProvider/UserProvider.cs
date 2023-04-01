@@ -7,8 +7,10 @@ using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.ModelBuilder;
 using AuthAPI.Services.UserProvider.ServiceExceptions;
 using LimpShared.Authentification;
+using LimpShared.DTOs.PublicKey;
 using LimpShared.DTOs.User;
 using Microsoft.EntityFrameworkCore;
+using NSec.Cryptography;
 using System.Text;
 
 namespace AuthAPI.Services.UserProvider
@@ -155,11 +157,11 @@ namespace AuthAPI.Services.UserProvider
             return newFidoUser;
         }
 
-        public async Task SetRSAPublic(string username, string PEMEncodedRSAPublicKey)
+        public async Task SetRSAPublic(PublicKeyDTO publicKeyDTO)
         {
-            User? targetUser = await _authContext.Users.Include(x=>x.Claims).FirstOrDefaultAsync(x => x.Username == username);
+            User? targetUser = await _authContext.Users.Include(x=>x.Claims).FirstOrDefaultAsync(x => x.Username == publicKeyDTO.Username);
             if (targetUser == null)
-                throw new ArgumentException($"There is no user with specified username: '{username}'");
+                throw new ArgumentException($"There is no user with specified username: '{publicKeyDTO.Username}'");
 
             UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x=> x.Type == "RSA Public Key");
             if (publicKeyClaim == null)
@@ -168,12 +170,12 @@ namespace AuthAPI.Services.UserProvider
                 {
                     Name = "PublicKey",
                     Type = "RSA Public Key",
-                    Value = PEMEncodedRSAPublicKey,
+                    Value = publicKeyDTO.Key,
                 });
             }
             else
             {
-                publicKeyClaim.Value = PEMEncodedRSAPublicKey;
+                publicKeyClaim.Value = publicKeyDTO.Key;
             }
 
             await _authContext.SaveChangesAsync();

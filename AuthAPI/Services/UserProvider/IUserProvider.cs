@@ -2,6 +2,7 @@
 using AuthAPI.Models;
 using AuthAPI.Models.Fido2;
 using LimpShared.Authentification;
+using LimpShared.DTOs.PublicKey;
 using LimpShared.DTOs.User;
 
 namespace AuthAPI.Services.UserProvider;
@@ -21,6 +22,6 @@ public interface IUserProvider
     public Task<List<User>> GetUsersAsync();
     public Task<UserOperationResult> RegisterUser(UserDTO request, List<UserClaim>? claims);
     public Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken);
-    public Task SetRSAPublic(string PEMEncodedRSAPublicKey, string username);
+    public Task SetRSAPublic(PublicKeyDTO publicKeyDTO);
     public Task<string?> GetRSAPublic(string username);
 }
