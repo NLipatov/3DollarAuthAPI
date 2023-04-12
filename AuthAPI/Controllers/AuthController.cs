@@ -59,20 +59,25 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("Validate-access-token")]
-    public ActionResult<TokenRelatedOperationResult> ValidateAccessToken(string accesstoken)
+    public ActionResult<string> ValidateAccessToken(string accesstoken)
     {
         if (_jwtService.ValidateAccessToken(accesstoken))
-            return Ok(new TokenRelatedOperationResult
+            return Ok(
+            JsonSerializer.Serialize(
+                new TokenRelatedOperationResult
             {
                 ResultType = OperationResultType.Success,
                 Message = "Token is valid",
-            });
+            }));
 
-        return Unauthorized(new TokenRelatedOperationResult
+        return Ok(
+            JsonSerializer.Serialize(
+            new TokenRelatedOperationResult
         {
             ResultType = OperationResultType.Fail,
+            FailureType = FailureType.InvalidToken,
             Message = "Token is not valid",
-        });
+        }));
     }
 
     /// <summary>
