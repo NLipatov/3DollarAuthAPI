@@ -1,6 +1,7 @@
 using AspNetCore.Proxy;
 using AuthAPI.DB.DBContext;
 using AuthAPI.Extensions;
+using AuthAPI.Services.ResponseSerializer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 
@@ -14,6 +15,8 @@ builder.Services.AddEndpointsApiExplorer();
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 builder.Services.AddDbContext<AuthContext>();
+
+builder.Services.AddTransient<IResponseSerializer, ResponseSerializer>();
 
 builder.Services.AddCors(options =>
 {
