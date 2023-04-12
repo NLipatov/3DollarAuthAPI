@@ -17,12 +17,13 @@ namespace AuthAPI.Services.UserProvider
 {
     public class UserProvider : IUserProvider
     {
-        private readonly AuthContext _authContext;
         private readonly ICryptographyHelper _cryptographyHelper;
-        public UserProvider(AuthContext authContext, ICryptographyHelper cryptographyHelper)
+        private readonly IConfiguration _configuration;
+
+        public UserProvider(ICryptographyHelper cryptographyHelper, IConfiguration configuration)
         {
-            _authContext = authContext;
             _cryptographyHelper = cryptographyHelper;
+            _configuration = configuration;
         }
         /// <summary>
         /// Registers a new user
@@ -59,87 +60,138 @@ namespace AuthAPI.Services.UserProvider
 
         public async Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken)
         {
-            User user = _authContext.Users.First(x => x.Username == username);
+            using(AuthContext context = new(_configuration))
+            {
+                User user = context.Users.First(x => x.Username == username);
 
-            user.RefreshToken = refreshToken.Token;
-            user.RefreshTokenExpires = refreshToken.Expires;
-            user.RefreshTokenCreated = refreshToken.Created;
+                user.RefreshToken = refreshToken.Token;
+                user.RefreshTokenExpires = refreshToken.Expires;
+                user.RefreshTokenCreated = refreshToken.Created;
 
-            await _authContext.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            return await _authContext.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == username);
+            using (AuthContext context = new(_configuration))
+            {
+                return await context.Users
+                    .Include(x => x.Claims)
+                    .FirstOrDefaultAsync(x => x.Username == username);
+            }
         }
 
         public async Task<List<User>> GetUsersAsync()
         {
-            return await _authContext.Users.Include(x => x.Claims).ToListAsync();
+            using (AuthContext context = new(_configuration))
+            {
+                return await context.Users.Include(x => x.Claims).ToListAsync();
+            }
         }
 
         public async Task SaveEncryptedRefreshToken(string username, RefreshToken rToken)
         {
-            User user = await _authContext.Users.FirstAsync(x => x.Username == username);
+            using (AuthContext context = new(_configuration))
+            {
+                User user = await context.Users.FirstAsync(x => x.Username == username);
 
-            user.RefreshToken = rToken.Token;
+                user.RefreshToken = rToken.Token;
 
-            await _authContext.SaveChangesAsync();
+                await context.SaveChangesAsync();
+
+            }
         }
 
         private async Task SaveUser(User user)
         {
-            await _authContext.AddAsync(user);
-            await _authContext.SaveChangesAsync();
+            using (AuthContext context = new(_configuration))
+            {
+                await context.AddAsync(user);
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task<List<User>> GetUsersOnline()
         {
-            var usersOnline = await _authContext.Users.ToListAsync();
-            return usersOnline;
+            using (AuthContext context = new(_configuration))
+            {
+                var usersOnline = await context.Users.ToListAsync();
+                return usersOnline;
+            }
         }
 
         public async Task<List<FidoCredential>> GetCredentialsByUserAsync(FidoUser user)
         {
-            return (await _authContext.StoredCredentials.ToListAsync()).Where(c => c.UserId.AsSpan().SequenceEqual(user.UserId)).ToList();
+            using (AuthContext context = new(_configuration))
+            {
+                return (await context.StoredCredentials.ToListAsync())
+                    .Where(c => c.UserId.AsSpan().SequenceEqual(user.UserId))
+                    .ToList();
+            }
         }
 
-        public async Task<List<FidoUser>> GetUsersByCredentialIdAsync(byte[] credentialId, CancellationToken cancellationToken = default)
+        public async Task<List<FidoUser>> GetUsersByCredentialIdAsync
+        (byte[] credentialId, 
+        CancellationToken cancellationToken = default)
         {
-            var cred = await _authContext.StoredCredentials.FirstOrDefaultAsync(c => c.Descriptor.Id.SequenceEqual(credentialId));
+            using (AuthContext context = new(_configuration))
+            {
+                var cred = await context.StoredCredentials
+                    .FirstOrDefaultAsync(c => c.Descriptor.Id.SequenceEqual(credentialId));
 
-            if (cred is null)
-                return new List<FidoUser>();
+                if (cred is null)
+                    return new List<FidoUser>();
 
-            return await _authContext.FidoUsers.Where(u => u.UserId.SequenceEqual(cred.UserId)).ToListAsync();
+                return await context.FidoUsers
+                    .Where(u => u.UserId.SequenceEqual(cred.UserId)).ToListAsync();
+            }
         }
 
         public async Task AddCredentialToUser(FidoUser user, FidoCredential credential)
         {
-            credential.UserId = user.UserId;
-            await _authContext.StoredCredentials.AddAsync(credential);
-            await _authContext.SaveChangesAsync();
+            using (AuthContext context = new(_configuration))
+            {
+                credential.UserId = user.UserId;
+                await context.StoredCredentials.AddAsync(credential);
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task<FidoCredential?> GetCredentialById(byte[] id)
         {
-            return await _authContext.StoredCredentials.FirstOrDefaultAsync(c => c.Descriptor.Id.SequenceEqual(id));
+            using (AuthContext context = new(_configuration))
+            {
+                return await context.StoredCredentials
+                    .FirstOrDefaultAsync(c => c.Descriptor.Id.SequenceEqual(id));
+            }
         }
 
         public async Task<List<FidoCredential>> GetCredentialsByUserHandleAsync(byte[] userHandle, CancellationToken cancellationToken = default)
         {
-            return await _authContext.StoredCredentials.Where(c => c.UserHandle.SequenceEqual(userHandle)).ToListAsync();
+            using (AuthContext context = new(_configuration))
+            {
+                return await context.StoredCredentials
+                    .Where(c => c.UserHandle.SequenceEqual(userHandle)).ToListAsync();
+            }
         }
 
         public async Task UpdateCounter(byte[] credentialId, uint counter)
         {
-            var cred = await _authContext.StoredCredentials.FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId));
-            cred.SignatureCounter = counter;
+            using (AuthContext context = new(_configuration))
+            {
+                var cred = await context.StoredCredentials
+                    .FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId));
+                cred.SignatureCounter = counter;
+            }
         }
 
         public async Task<FidoUser?> GetFidoUserByUsernameAsync(string username)
         {
-            return await _authContext.FidoUsers.FirstOrDefaultAsync(u => u.Name == username);
+            using (AuthContext context = new(_configuration))
+            {
+                return await context.FidoUsers.FirstOrDefaultAsync(u => u.Name == username);
+            }
         }
 
         public async Task<FidoUser> RegisterFidoUser(string name, string? displayName = null)
@@ -151,45 +203,54 @@ namespace AuthAPI.Services.UserProvider
                 UserId = Encoding.UTF8.GetBytes(name)
             };
 
-            await _authContext.FidoUsers.AddAsync(newFidoUser);
-            await _authContext.SaveChangesAsync();
+            using (AuthContext context = new(_configuration))
+            {
+                await context.FidoUsers.AddAsync(newFidoUser);
+                await context.SaveChangesAsync();
+            }
 
             return newFidoUser;
         }
 
         public async Task SetRSAPublic(PublicKeyDTO publicKeyDTO)
         {
-            User? targetUser = await _authContext.Users.Include(x=>x.Claims).FirstOrDefaultAsync(x => x.Username == publicKeyDTO.Username);
-            if (targetUser == null)
-                throw new ArgumentException($"There is no user with specified username: '{publicKeyDTO.Username}'");
-
-            UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x=> x.Type == "RSA Public Key");
-            if (publicKeyClaim == null)
+            using (AuthContext context = new(_configuration))
             {
-                targetUser.Claims?.Add(new UserClaim
+                User? targetUser = await context.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == publicKeyDTO.Username);
+                if (targetUser == null)
+                    throw new ArgumentException($"There is no user with specified username: '{publicKeyDTO.Username}'");
+
+                UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
+                if (publicKeyClaim == null)
                 {
-                    Name = "PublicKey",
-                    Type = "RSA Public Key",
-                    Value = publicKeyDTO.Key,
-                });
-            }
-            else
-            {
-                publicKeyClaim.Value = publicKeyDTO.Key;
-            }
+                    targetUser.Claims?.Add(new UserClaim
+                    {
+                        Name = "PublicKey",
+                        Type = "RSA Public Key",
+                        Value = publicKeyDTO.Key,
+                    });
+                }
+                else
+                {
+                    publicKeyClaim.Value = publicKeyDTO.Key;
+                }
 
-            await _authContext.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
         }
 
         public async Task<string?> GetRSAPublic(string username)
         {
-            User? targetUser = await _authContext.Users.Include(x=>x.Claims).FirstOrDefaultAsync(x=>x.Username == username);
-            if(targetUser == null)
-                throw new ArgumentException($"There is no user with specified username: '{username}'");
+            using (AuthContext context = new(_configuration))
+            {
+                User? targetUser = await context.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == username);
+                if (targetUser == null)
+                    throw new ArgumentException($"There is no user with specified username: '{username}'");
 
-            UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
+                UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
 
-            return publicKeyClaim?.Value;
+                return publicKeyClaim?.Value;
+            }
         }
     }
 }
