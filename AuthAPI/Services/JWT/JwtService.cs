@@ -61,7 +61,9 @@ namespace AuthAPI.Services.JWT
                     ValidateAudience = true,
                     ValidIssuer = myIssuer,
                     ValidAudience = myAudience,
-                    IssuerSigningKey = mySecurityKey
+                    IssuerSigningKey = mySecurityKey,
+                    ValidateLifetime = true,
+                    LifetimeValidator = CustomLifetimeValidator
                 }, out SecurityToken validatedToken);
             }
             catch
@@ -69,6 +71,14 @@ namespace AuthAPI.Services.JWT
                 return false;
             }
             return true;
+        }
+        private bool CustomLifetimeValidator(DateTime? notBefore, DateTime? expires, SecurityToken tokenToValidate, TokenValidationParameters @param)
+        {
+            if (expires != null)
+            {
+                return expires > DateTime.UtcNow;
+            }
+            return false;
         }
         public TokenClaim? GetClaim(string token, string claimName)
         {
