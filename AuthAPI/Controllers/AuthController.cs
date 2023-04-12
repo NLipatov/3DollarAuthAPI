@@ -1,9 +1,9 @@
 ﻿using AuthAPI.DTOs.Claims;
 using AuthAPI.DTOs.User;
+using AuthAPI.Extensions.ResponseSerializeExtension;
 using AuthAPI.Models;
 using AuthAPI.Services.JWT;
 using AuthAPI.Services.JWT.Models;
-using AuthAPI.Services.ResponseSerializer;
 using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
 using LimpShared.Authentification;
@@ -22,20 +22,17 @@ public class AuthController : ControllerBase
     private readonly IUserProvider _userProvider;
     private readonly IJwtService _jwtService;
     private readonly IUserCredentialsValidator _credentialsValidator;
-    private readonly IResponseSerializer _responseSerializer;
 
     public AuthController
         (
             IUserProvider userProvider,
             IJwtService jwtService,
-            IUserCredentialsValidator credentialsValidator,
-            IResponseSerializer responseSerializer
+            IUserCredentialsValidator credentialsValidator
         )
     {
         _userProvider = userProvider;
         _jwtService = jwtService;
         _credentialsValidator = credentialsValidator;
-        _responseSerializer = responseSerializer;
     }
 
     [HttpPost("Register")]
@@ -65,23 +62,27 @@ public class AuthController : ControllerBase
     [HttpGet("Validate-access-token")]
     public ActionResult<string> ValidateAccessToken(string accesstoken)
     {
+        string result;
         if (_jwtService.ValidateAccessToken(accesstoken))
-            return Ok(
-            _responseSerializer.Serialize(
-                new TokenRelatedOperationResult
+        {
+            result = new TokenRelatedOperationResult
             {
                 ResultType = OperationResultType.Success,
                 Message = "Token is valid",
-            }));
+            }.AsJSON();
 
-        return Ok(
-            _responseSerializer.Serialize(
-            new TokenRelatedOperationResult
+        }
+        else
         {
-            ResultType = OperationResultType.Fail,
-            FailureType = FailureType.InvalidToken,
-            Message = "Token is not valid",
-        }));
+            result = new TokenRelatedOperationResult
+            {
+                ResultType = OperationResultType.Fail,
+                FailureType = FailureType.InvalidToken,
+                Message = "Token is not valid",
+            }.AsJSON();
+        }
+
+        return Ok(result);
     }
 
     /// <summary>
