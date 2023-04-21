@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using AuthAPI;
-using AuthAPI.DB.DBContext;
-using AuthAPI.DTOs.User;
+﻿using AuthAPI.DTOs.User;
 using AuthAPI.Models;
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.Win32.SafeHandles;
+using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using Xunit;
 
@@ -38,9 +29,8 @@ namespace AuthAPI.Tests
             return (userProviderMock, cryptographyHelperMock, request, user);
         }
 
-
         [Theory]
-        [InlineData("testuser","testpassword", ValidationResult.Success)]
+        [InlineData("testuser", "testpassword", ValidationResult.Success)]
         public async Task ValidateCredentials_ReturnsSuccess_WhenValidCredentials(string name, string password, ValidationResult expected)
         {
             var (userProviderMock, cryptographyHelperMock, request, user) = Arrange(name, password, true);
@@ -50,7 +40,6 @@ namespace AuthAPI.Tests
 
             Assert.Equal(expected, actual);
         }
-
 
         [Theory]
         [InlineData("testuser", "testpassword", ValidationResult.WrongUsername)]
@@ -76,6 +65,5 @@ namespace AuthAPI.Tests
 
             Assert.Equal(expected, actual);
         }
-
     }
 }
