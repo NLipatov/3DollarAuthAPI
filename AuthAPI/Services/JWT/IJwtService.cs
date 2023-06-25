@@ -1,7 +1,7 @@
 ﻿using AuthAPI.Models;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserProvider;
-using LimpShared.Authentification;
+using LimpShared.Models.Authentication.Models;
 using System.Security.Claims;
 
 namespace AuthAPI.Services.JWT

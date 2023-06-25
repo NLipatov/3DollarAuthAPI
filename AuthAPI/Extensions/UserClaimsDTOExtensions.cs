@@ -1,4 +1,6 @@
 ﻿using AuthAPI.Models;
+using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.Claims;
+using LimpShared.Models.Authentication.Models.UserAuthentication;
 using System.Security.Claims;
 
 namespace AuthAPI.DTOs.Claims

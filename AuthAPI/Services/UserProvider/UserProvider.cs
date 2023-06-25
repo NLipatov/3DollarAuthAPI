@@ -1,14 +1,14 @@
 ﻿using AuthAPI.DB.DBContext;
-using AuthAPI.DTOs.User;
 using AuthAPI.Mapping;
 using AuthAPI.Models;
 using AuthAPI.Models.Fido2;
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.ModelBuilder;
 using AuthAPI.Services.UserProvider.ServiceExceptions;
-using LimpShared.Authentification;
-using LimpShared.DTOs.PublicKey;
-using LimpShared.DTOs.User;
+using LimpShared.Models.Authentication.Models;
+using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
+using LimpShared.Models.Authentication.Models.UserAuthentication;
+using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using Microsoft.EntityFrameworkCore;
 using NSec.Cryptography;
 using System.Text;
@@ -34,16 +34,16 @@ namespace AuthAPI.Services.UserProvider
         /// <param name="claims"></param>
         /// <returns></returns>
         /// <exception cref="UserProviderException"></exception>
-        public async Task<UserOperationResult> RegisterUser(UserDTO request, List<UserClaim>? claims)
+        public async Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request, List<UserClaim>? claims)
         {
             #region Checking if user with this username already exist.
             User? existingUser = (await GetUsersAsync()).FirstOrDefault(x => x.Username == request.Username);
             if (existingUser != null)
-                return new UserOperationResult
+                return new UserAuthenticationOperationResult
                 {
                     SystemMessage = "User with this username already exists",
                     UserDTO = null,
-                    ResultType = LimpShared.ResultTypeEnum.OperationResultType.Fail
+                    ResultType = OperationResultType.Fail
                 };
             #endregion
 
@@ -51,7 +51,7 @@ namespace AuthAPI.Services.UserProvider
 
             await SaveUser(user);
 
-            return new UserOperationResult()
+            return new UserAuthenticationOperationResult()
             {
                 SystemMessage = "Success",
                 UserDTO = user.ToDTO(),

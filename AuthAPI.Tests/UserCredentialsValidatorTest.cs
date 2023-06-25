@@ -1,8 +1,8 @@
-﻿using AuthAPI.DTOs.User;
-using AuthAPI.Models;
+﻿using AuthAPI.Models;
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
+using LimpShared.Models.Authentication.Models.UserAuthentication;
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using Xunit;
@@ -11,13 +11,13 @@ namespace AuthAPI.Tests
 {
     public class UserCredentialsValidatorTest
     {
-        private (Mock<IUserProvider> userProviderMock, Mock<ICryptographyHelper> cryptographyHelperMock, UserDTO request, User user) Arrange(string name, string password, bool passwordMatch)
+        private (Mock<IUserProvider> userProviderMock, Mock<ICryptographyHelper> cryptographyHelperMock, UserAuthentication request, User user) Arrange(string name, string password, bool passwordMatch)
         {
             var userProviderMock = new Mock<IUserProvider>();
             var cryptographyHelperMock = new Mock<ICryptographyHelper>();
             var cryptographyHelper = new CryptographyHelper();
 
-            var request = new UserDTO { Username = name, Password = password };
+            var request = new UserAuthentication { Username = name, Password = password };
 
             cryptographyHelper.CreateHashAndSalt(password, out byte[] passwordHash, out byte[] passwordSalt);
 
@@ -46,7 +46,7 @@ namespace AuthAPI.Tests
         public async Task ValidateCredentials_ReturnsWrong_WhenUserNull(string name, string password, ValidationResult expected)
         {
             var (userProviderMock, cryptographyHelperMock, request, user) = Arrange(name, password, true);
-            userProviderMock.Setup(x => x.GetUserByUsernameAsync(request.Username)).ReturnsAsync((User)null);
+            userProviderMock.Setup(x => x.GetUserByUsernameAsync(request.Username)).ReturnsAsync((User?)null);
 
             var validator = new UserCredentialsValidator(userProviderMock.Object, cryptographyHelperMock.Object);
             var actual = await validator.ValidateCredentials(request);

@@ -2,7 +2,7 @@
 using AuthAPI.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserProvider;
-using LimpShared.Authentification;
+using LimpShared.Models.Authentication.Models;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

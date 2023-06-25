@@ -1,14 +1,13 @@
 ﻿using AuthAPI.DTOs.Claims;
-using AuthAPI.DTOs.User;
 using AuthAPI.Extensions.ResponseSerializeExtension;
 using AuthAPI.Models;
 using AuthAPI.Services.JWT;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
 using AuthAPI.Services.UserProvider;
-using LimpShared.Authentification;
-using LimpShared.DTOs.User;
-using LimpShared.ResultTypeEnum;
+using LimpShared.Models.Authentication.Models;
+using LimpShared.Models.Authentication.Models.UserAuthentication;
+using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
@@ -36,7 +35,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("Register")]
-    public async Task<ActionResult<UserOperationResult>> Register(UserDTO request)
+    public async Task<ActionResult<UserAuthenticationOperationResult>> Register(UserAuthentication request)
     {
         string contextId = HttpContext.Session.Id;
         return await _userProvider.RegisterUser(request, request?.Claims?.ExtractClaims());
@@ -91,7 +90,7 @@ public class AuthController : ControllerBase
     /// <paramref name="request"/>
     /// </summary>
     [HttpPost("get-token")]
-    public async Task<ActionResult<string>> GetToken(UserDTO request)
+    public async Task<ActionResult<string>> GetToken(UserAuthentication request)
     {
         ValidationResult ValidationResult = await _credentialsValidator.ValidateCredentials(request);
 
@@ -133,7 +132,7 @@ public class AuthController : ControllerBase
         JWTPair jwtPair = await _jwtService.CreateJWTPairAsync(_userProvider, refreshTokenOwner.Username);
 
         await SetRefreshToken(jwtPair.RefreshToken,
-            new UserDTO { Username = refreshTokenOwner.Username });
+            new UserAuthentication { Username = refreshTokenOwner.Username });
 
         return Ok(jwtPair.AccessToken);
     }
@@ -162,7 +161,7 @@ public class AuthController : ControllerBase
         return Ok(JsonSerializer.Serialize(jwtPair));
     }
 
-    private async Task SetRefreshToken(RefreshToken newRefreshToken, UserDTO userDTO)
+    private async Task SetRefreshToken(RefreshToken newRefreshToken, UserAuthentication userDTO)
     {
         await _userProvider.SaveRefreshTokenAsync(userDTO.Username, newRefreshToken);
 
@@ -180,7 +179,7 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    private async Task<string> ProvideTokensAsync(UserDTO request)
+    private async Task<string> ProvideTokensAsync(UserAuthentication request)
     {
         JWTPair jwtPait = await _jwtService.CreateJWTPairAsync(_userProvider, request.Username);
 
@@ -196,7 +195,7 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    private async Task<string> ProvideAccessAndRefreshTokensAsync(UserDTO request)
+    private async Task<string> ProvideAccessAndRefreshTokensAsync(UserAuthentication request)
     {
         JWTPair jwtPait = await _jwtService.CreateJWTPairAsync(_userProvider, request.Username);
 

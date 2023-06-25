@@ -1,6 +1,6 @@
-﻿using AuthAPI.DTOs.User;
-using AuthAPI.Models;
+﻿using AuthAPI.Models;
 using AutoMapper;
+using LimpShared.Models.Authentication.Models.UserAuthentication;
 
 namespace AuthAPI.Mapping
 {
@@ -8,7 +8,7 @@ namespace AuthAPI.Mapping
     {
         private static IMapper CreateUserMapper()
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<User, UserDTO>()
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<User, UserAuthentication>()
             .ForMember(src => src.Username, opt => opt.MapFrom(src => src.Username))
             .ForMember(src => src.Password, opt => opt.Ignore())
             .ForMember(src => src.Claims, opt => opt.Ignore())
@@ -17,11 +17,11 @@ namespace AuthAPI.Mapping
             return config.CreateMapper();
         }
 
-        public static UserDTO ToDTO(this User user)
+        public static UserAuthentication ToDTO(this User user)
         {
             var mapper = CreateUserMapper();
 
-            return mapper.Map<UserDTO>(user);
+            return mapper.Map<UserAuthentication>(user);
         }
     }
 }

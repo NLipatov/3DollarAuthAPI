@@ -1,10 +1,10 @@
-﻿using AuthAPI.DTOs.User;
-using AuthAPI.Mapping;
+﻿using AuthAPI.Mapping;
+using AuthAPI.Models;
 using AuthAPI.Services.JWT;
 using AuthAPI.Services.UserProvider;
-using LimpShared.Authentification;
-using LimpShared.DTOs.PublicKey;
-using LimpShared.ResultTypeEnum;
+using LimpShared.Models.Authentication.Models;
+using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
+using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
@@ -23,7 +23,7 @@ namespace AuthAPI.Controllers
             _jwtService = jwtService;
         }
         [HttpGet("UsersOnline")]
-        public async Task<ActionResult<List<UserDTO>>> GetUsersOnline()
+        public async Task<ActionResult<List<User>>> GetUsersOnline()
         {
             var users = await _userProvider.GetUsersOnline();
 
@@ -35,7 +35,7 @@ namespace AuthAPI.Controllers
         }
 
         [HttpGet("GetUserName")]
-        public async Task<ActionResult<string>> GetUserName(string accessToken)
+        public ActionResult<string> GetUserName(string accessToken)
         {
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
 
@@ -65,7 +65,7 @@ namespace AuthAPI.Controllers
                 }));
 
 
-            JwtSecurityToken securityToken = tokenHandler.ReadToken(accessToken) as JwtSecurityToken;
+            JwtSecurityToken? securityToken = tokenHandler.ReadToken(accessToken) as JwtSecurityToken;
             var username = securityToken!.Claims.FirstOrDefault(x => x.Type == "unique_name")?.Value ?? "Anonymous";
 
             var result = new TokenRelatedOperationResult

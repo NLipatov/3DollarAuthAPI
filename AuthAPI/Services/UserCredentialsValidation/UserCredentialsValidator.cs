@@ -1,7 +1,7 @@
-﻿using AuthAPI.DTOs.User;
-using AuthAPI.Models;
+﻿using AuthAPI.Models;
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.UserProvider;
+using LimpShared.Models.Authentication.Models.UserAuthentication;
 
 namespace AuthAPI.Services.UserCredentialsValidation
 {
@@ -19,7 +19,7 @@ namespace AuthAPI.Services.UserCredentialsValidation
             _userProvider = userProvider;
             _cryptographyHelper = cryptographyHelper;
         }
-        public async Task<ValidationResult> ValidateCredentials(UserDTO request)
+        public async Task<ValidationResult> ValidateCredentials(UserAuthentication request)
         {
             User? user = await _userProvider.GetUserByUsernameAsync(request.Username);
             if (user == null)
