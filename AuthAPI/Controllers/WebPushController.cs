@@ -39,7 +39,7 @@ namespace AuthAPI.Controllers
             string username = _jwtService.GetUsernameFromAccessToken(subscriptionDTO.AccessToken);
 
             User? user = await _authContext.Users
-                .Include(x=>x.NotificationSubscriptions)
+                .Include(x => x.NotificationSubscriptions)
                 .FirstOrDefaultAsync(x => x.Username == username);
 
             if (user is null)
