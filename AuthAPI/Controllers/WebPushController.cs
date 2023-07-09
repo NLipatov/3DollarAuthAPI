@@ -24,6 +24,19 @@ namespace AuthAPI.Controllers
             _userProvider = userProvider;
         }
 
+        [HttpGet("notifications/{username}")]
+        public async Task<NotificationSubscriptionDTO[]> GetSubscriptions(string username)
+        {
+            User? user = await _authContext.Users
+                .Include(x => x.NotificationSubscriptions)
+                .FirstOrDefaultAsync(x => x.Username == username);
+
+            if (user is null)
+                throw new ArgumentException($"There is no {nameof(User)} with such username — {username}.");
+
+            return user.NotificationSubscriptions.Select(x=>x.ToDTO()).ToArray();
+        }
+
         [HttpPut("notifications/subscribe")]
         public async Task Subscribe(NotificationSubscriptionDTO subscriptionDTO)
         {

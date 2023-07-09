@@ -15,5 +15,16 @@ namespace AuthAPI.Models.Notifications
                 Url = notificationSubscriptionDTO.Url,
             };
         }
+
+        public static NotificationSubscriptionDTO ToDTO(this UserNotificationSubscription notificationSubscription)
+        {
+            return new NotificationSubscriptionDTO
+            {
+                Auth = notificationSubscription.Auth,
+                Id = notificationSubscription.Id,
+                Url = notificationSubscription.Url,
+                P256dh = notificationSubscription.P256dh
+            };
+        }
     }
 }
