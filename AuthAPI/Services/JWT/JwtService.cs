@@ -3,6 +3,7 @@ using AuthAPI.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserProvider;
 using LimpShared.Models.Authentication.Models;
+using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -119,6 +120,22 @@ namespace AuthAPI.Services.JWT
                 Expires = DateTime.UtcNow.AddDays(7),
                 Created = DateTime.UtcNow,
             };
+        }
+
+        public string GetUsernameFromAccessToken(string accessToken)
+        {
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+
+            if (!tokenHandler.CanReadToken(accessToken))
+                throw new ArgumentException("Given access token is not readable.");
+
+            JwtSecurityToken? securityToken = tokenHandler.ReadToken(accessToken) as JwtSecurityToken;
+            string? username = securityToken!.Claims.FirstOrDefault(x => x.Type == "unique_name")?.Value;
+
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Access token does not contain a username-containing property.");
+
+            return username;
         }
     }
 }

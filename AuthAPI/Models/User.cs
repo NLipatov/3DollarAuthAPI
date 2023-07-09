@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AuthAPI.Models.Notifications;
+using LimpShared.Models.WebPushNotification;
+using System.ComponentModel.DataAnnotations;
 
 namespace AuthAPI.Models;
 
@@ -13,4 +15,5 @@ public class User : IUser
     public string? RefreshToken { get; set; }
     public DateTime RefreshTokenCreated { get; set; }
     public DateTime RefreshTokenExpires { get; set; }
+    public List<UserNotificationSubscription> NotificationSubscriptions { get; set; } = new();
 }

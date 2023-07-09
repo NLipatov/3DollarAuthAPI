@@ -1,5 +1,6 @@
 ﻿using AuthAPI.Models;
 using AuthAPI.Models.Fido2;
+using AuthAPI.Models.Notifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.DB.DBContext
@@ -17,6 +18,7 @@ namespace AuthAPI.DB.DBContext
         public DbSet<UserClaim> UsersClaim { get; set; }
         public DbSet<FidoUser> FidoUsers { get; set; }
         public DbSet<FidoCredential> StoredCredentials { get; set; }
+        public DbSet<UserNotificationSubscription> NotificationSubscriptions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
