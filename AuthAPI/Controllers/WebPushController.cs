@@ -24,6 +24,38 @@ namespace AuthAPI.Controllers
             _userProvider = userProvider;
         }
 
+        [HttpPatch("notifications/remove")]
+        public async Task DeleteSubsciptions(NotificationSubscriptionDTO[] subscriptionDTOs)
+        {
+            string? accessToken = subscriptionDTOs
+                .FirstOrDefault(x => !string.IsNullOrWhiteSpace(x.AccessToken))
+                ?.AccessToken;
+
+            if (string.IsNullOrWhiteSpace(accessToken))
+                throw new ArgumentException
+                    ($"Cannot delete web push subscriptions: " +
+                    $"{nameof(NotificationSubscriptionDTO.AccessToken)} is not a well formed JWT access token.");
+
+            bool accessTokenIsValid = _jwtService.ValidateAccessToken(accessToken);
+            if (!accessTokenIsValid)
+                throw new ArgumentException("Cannot delete web push subscriptions: given access token is not valid.");
+
+            string username = _jwtService.GetUsernameFromAccessToken(accessToken);
+
+            User? user = await _authContext.Users
+                .Include(x => x.NotificationSubscriptions)
+                .FirstOrDefaultAsync(x => x.Username == username);
+
+            if (user is null)
+                throw new ArgumentException($"There is no {nameof(User)} with such username — {username}.");
+
+            var targetSubscriptions = user.NotificationSubscriptions.Where(x => subscriptionDTOs.Any(s => s.Id == x.Id));
+
+            _authContext.RemoveRange(targetSubscriptions);
+
+            await _authContext.SaveChangesAsync();
+        }
+
         [HttpGet("notifications/{username}")]
         public async Task<NotificationSubscriptionDTO[]> GetSubscriptions(string username)
         {
