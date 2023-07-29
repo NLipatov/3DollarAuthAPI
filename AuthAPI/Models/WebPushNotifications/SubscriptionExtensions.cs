@@ -4,26 +4,27 @@ namespace AuthAPI.Models.Notifications
 {
     public static class SubscriptionExtensions
     {
-        public static UserNotificationSubscription FromDTO(this NotificationSubscriptionDTO notificationSubscriptionDTO, User user)
+        public static UserWebPushNotificationSubscription FromDTO(this NotificationSubscriptionDTO notificationSubscriptionDTO, User user)
         {
-            return new UserNotificationSubscription
+            return new UserWebPushNotificationSubscription
             {
                 User = user,
                 Auth = notificationSubscriptionDTO.Auth,
                 Id = notificationSubscriptionDTO.Id,
                 P256dh = notificationSubscriptionDTO.P256dh,
                 Url = notificationSubscriptionDTO.Url,
+                UserAgentId = notificationSubscriptionDTO.UserAgentId,
             };
         }
 
-        public static NotificationSubscriptionDTO ToDTO(this UserNotificationSubscription notificationSubscription)
+        public static NotificationSubscriptionDTO ToDTO(this UserWebPushNotificationSubscription notificationSubscription)
         {
             return new NotificationSubscriptionDTO
             {
                 Auth = notificationSubscription.Auth,
                 Id = notificationSubscription.Id,
                 Url = notificationSubscription.Url,
-                P256dh = notificationSubscription.P256dh
+                P256dh = notificationSubscription.P256dh,
             };
         }
     }

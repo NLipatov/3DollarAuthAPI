@@ -15,5 +15,5 @@ public class User : IUser
     public string? RefreshToken { get; set; }
     public DateTime RefreshTokenCreated { get; set; }
     public DateTime RefreshTokenExpires { get; set; }
-    public List<UserNotificationSubscription> NotificationSubscriptions { get; set; } = new();
+    public List<UserWebPushNotificationSubscription> UserWebPushNotificationSubscriptions { get; set; } = new();
 }

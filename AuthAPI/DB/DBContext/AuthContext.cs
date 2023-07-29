@@ -18,7 +18,7 @@ namespace AuthAPI.DB.DBContext
         public DbSet<UserClaim> UsersClaim { get; set; }
         public DbSet<FidoUser> FidoUsers { get; set; }
         public DbSet<FidoCredential> StoredCredentials { get; set; }
-        public DbSet<UserNotificationSubscription> NotificationSubscriptions { get; set; }
+        public DbSet<UserWebPushNotificationSubscription> WebPushNotificationSubscriptions { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

@@ -43,13 +43,13 @@ namespace AuthAPI.Controllers
             string username = _jwtService.GetUsernameFromAccessToken(accessToken);
 
             User? user = await _authContext.Users
-                .Include(x => x.NotificationSubscriptions)
+                .Include(x => x.UserWebPushNotificationSubscriptions)
                 .FirstOrDefaultAsync(x => x.Username == username);
 
             if (user is null)
                 throw new ArgumentException($"There is no {nameof(User)} with such username — {username}.");
 
-            var targetSubscriptions = user.NotificationSubscriptions.Where(x => subscriptionDTOs.Any(s => s.Id == x.Id));
+            var targetSubscriptions = user.UserWebPushNotificationSubscriptions.Where(x => subscriptionDTOs.Any(s => s.Id == x.Id));
 
             _authContext.RemoveRange(targetSubscriptions);
 
@@ -60,13 +60,13 @@ namespace AuthAPI.Controllers
         public async Task<NotificationSubscriptionDTO[]> GetSubscriptions(string username)
         {
             User? user = await _authContext.Users
-                .Include(x => x.NotificationSubscriptions)
+                .Include(x => x.UserWebPushNotificationSubscriptions)
                 .FirstOrDefaultAsync(x => x.Username == username);
 
             if (user is null)
                 throw new ArgumentException($"There is no {nameof(User)} with such username — {username}.");
 
-            return user.NotificationSubscriptions.Select(x=>x.ToDTO()).ToArray();
+            return user.UserWebPushNotificationSubscriptions.Select(x => x.ToDTO()).ToArray();
         }
 
         [HttpPut("notifications/subscribe")]
@@ -84,7 +84,7 @@ namespace AuthAPI.Controllers
             string username = _jwtService.GetUsernameFromAccessToken(subscriptionDTO.AccessToken);
 
             User? user = await _authContext.Users
-                .Include(x => x.NotificationSubscriptions)
+                .Include(x => x.UserWebPushNotificationSubscriptions)
                 .FirstOrDefaultAsync(x => x.Username == username);
 
             if (user is null)
@@ -92,7 +92,7 @@ namespace AuthAPI.Controllers
                     ($"Cannot subscribe to web push: " +
                     $"there is no user with such {nameof(Models.User.Username)} found - '{username}'.");
 
-            _authContext.NotificationSubscriptions.Add(subscriptionDTO.FromDTO(user));
+            _authContext.WebPushNotificationSubscriptions.Add(subscriptionDTO.FromDTO(user));
 
             await _authContext.SaveChangesAsync();
         }
