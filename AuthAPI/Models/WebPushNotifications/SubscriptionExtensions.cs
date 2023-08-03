@@ -25,6 +25,7 @@ namespace AuthAPI.Models.Notifications
                 Id = notificationSubscription.Id,
                 Url = notificationSubscription.Url,
                 P256dh = notificationSubscription.P256dh,
+                UserAgentId = notificationSubscription.UserAgentId.HasValue ? notificationSubscription.UserAgentId.Value : Guid.Empty,
             };
         }
     }
