@@ -9,6 +9,7 @@ namespace AuthAPI.Services.UserProvider;
 public interface IUserProvider
 {
     public Task<List<User>> GetUsersOnline();
+    public Task<bool> IsUserExist(string username);
     public Task<User?> GetUserByUsernameAsync(string username);
     public Task<FidoUser?> GetFidoUserByUsernameAsync(string username);
     public Task<FidoUser> RegisterFidoUser(string name, string? displayName = null);

@@ -252,5 +252,18 @@ namespace AuthAPI.Services.UserProvider
                 return publicKeyClaim?.Value;
             }
         }
+
+        public async Task<bool> IsUserExist(string username)
+        {
+            using(AuthContext context = new(_configuration))
+            {
+                bool exist = await context.Users
+                    .Select(x => x.Username)
+                    .Where(x => x.ToLower() == username.ToLower())
+                    .AnyAsync();
+
+                return exist;
+            }
+        }
     }
 }

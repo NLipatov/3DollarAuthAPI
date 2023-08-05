@@ -22,6 +22,15 @@ namespace AuthAPI.Controllers
             _userProvider = userProvider;
             _jwtService = jwtService;
         }
+
+        [HttpGet("user/{username}/exist")]
+        public async Task<ActionResult<User>> GetUser(string username)
+        {
+            bool exist = await _userProvider.IsUserExist(username);
+
+            return Ok(exist);
+        }
+
         [HttpGet("UsersOnline")]
         public async Task<ActionResult<List<User>>> GetUsersOnline()
         {
