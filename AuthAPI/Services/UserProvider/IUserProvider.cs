@@ -3,13 +3,14 @@ using AuthAPI.Models.Fido2;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
+using LimpShared.Models.Users;
 
 namespace AuthAPI.Services.UserProvider;
 
 public interface IUserProvider
 {
     public Task<List<User>> GetUsersOnline();
-    public Task<bool> IsUserExist(string username);
+    public Task<IsUserExistDTO> IsUserExist(string username);
     public Task<User?> GetUserByUsernameAsync(string username);
     public Task<FidoUser?> GetFidoUserByUsernameAsync(string username);
     public Task<FidoUser> RegisterFidoUser(string name, string? displayName = null);

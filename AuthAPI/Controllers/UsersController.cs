@@ -5,6 +5,7 @@ using AuthAPI.Services.UserProvider;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
+using LimpShared.Models.Users;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
@@ -24,11 +25,11 @@ namespace AuthAPI.Controllers
         }
 
         [HttpGet("user/{username}/exist")]
-        public async Task<ActionResult<User>> GetUser(string username)
+        public async Task<ActionResult<IsUserExistDTO>> GetUser(string username)
         {
-            bool exist = await _userProvider.IsUserExist(username);
+            IsUserExistDTO result = await _userProvider.IsUserExist(username);
 
-            return Ok(exist);
+            return Ok(result);
         }
 
         [HttpGet("UsersOnline")]

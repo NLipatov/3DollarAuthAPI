@@ -9,6 +9,7 @@ using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
+using LimpShared.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using NSec.Cryptography;
 using System.Text;
@@ -253,16 +254,19 @@ namespace AuthAPI.Services.UserProvider
             }
         }
 
-        public async Task<bool> IsUserExist(string username)
+        public async Task<IsUserExistDTO> IsUserExist(string username)
         {
             using(AuthContext context = new(_configuration))
             {
-                bool exist = await context.Users
+                string? targetUserUsername = await context.Users
                     .Select(x => x.Username)
-                    .Where(x => x.ToLower() == username.ToLower())
-                    .AnyAsync();
+                    .FirstOrDefaultAsync(x => x.ToLower() == username.ToLower());
 
-                return exist;
+                return new()
+                {
+                    IsExist = !string.IsNullOrWhiteSpace(targetUserUsername),
+                    Username = targetUserUsername ?? username
+                };
             }
         }
     }
