@@ -34,4 +34,8 @@
     <ProjectReference Include="..\LimpShared\LimpShared\LimpShared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Scripts\" />
+  </ItemGroup>
+
 </Project>
