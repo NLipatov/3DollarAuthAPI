@@ -137,12 +137,11 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh-tokens-explicitly")]
-    public async Task<ActionResult<string>> RefreshTokensExplicitly(RefreshToken refreshToken)
+    public async Task<ActionResult<string>> RefreshTokensExplicitly(RefreshTokenDTO dto)
     {
-        //В хранилище юзеров смотрим, есть ли у нас юзер, которому был выдан этот refreshToken
         var users = await _userProvider.GetUsersAsync();
 
-        User? refreshTokenOwner = users.FirstOrDefault(x => x.RefreshToken == refreshToken.Token);
+        User? refreshTokenOwner = users.FirstOrDefault(x => x.RefreshToken == dto.RefreshToken.Token);
 
         if (refreshTokenOwner == null)
         {
@@ -155,7 +154,7 @@ public class AuthController : ControllerBase
 
         JWTPair jwtPair = await _jwtService.CreateJWTPairAsync(_userProvider, refreshTokenOwner.Username);
 
-        await _userProvider.SaveRefreshTokenAsync(refreshTokenOwner.Username, jwtPair.RefreshToken);
+        await _userProvider.SaveRefreshTokenAsync(refreshTokenOwner.Username, dto);
 
         return Ok(JsonSerializer.Serialize(jwtPair));
     }
