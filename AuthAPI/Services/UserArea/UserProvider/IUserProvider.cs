@@ -1,7 +1,6 @@
 ﻿using AuthAPI.Models;
 using AuthAPI.Models.Fido2;
 using LimpShared.Models.Authentication.Models;
-using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.Users;
 
@@ -24,6 +23,4 @@ public interface IUserProvider
     public Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request, List<UserClaim>? claims);
     public Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken);
     public Task SaveRefreshTokenAsync(string username, RefreshTokenDTO dto);
-    public Task SetRSAPublic(PublicKeyDTO publicKeyDTO);
-    public Task<string?> GetRSAPublic(string username);
 }

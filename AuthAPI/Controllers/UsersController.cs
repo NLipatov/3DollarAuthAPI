@@ -9,6 +9,8 @@ using LimpShared.Models.Users;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using AuthAPI.Services.JWT.JWTAuthorizeCenter;
+using AuthAPI.Services.UserArea.UserPublicKeyManager;
 
 namespace AuthAPI.Controllers
 {
@@ -18,10 +20,19 @@ namespace AuthAPI.Controllers
     {
         private readonly IUserProvider _userProvider;
         private readonly IJwtService _jwtService;
-        public UsersController(IUserProvider userProvider, IJwtService jwtService)
+        private readonly IPublicKeyManager _publicKeyManager;
+        private readonly IJwtAuthorizeCenter _jwtManager;
+
+        public UsersController
+            (IUserProvider userProvider,
+                IJwtService jwtService,
+                IPublicKeyManager publicKeyManager,
+                IJwtAuthorizeCenter jwtManager)
         {
             _userProvider = userProvider;
             _jwtService = jwtService;
+            _publicKeyManager = publicKeyManager;
+            _jwtManager = jwtManager;
         }
 
         [HttpGet("user/{username}/exist")]
@@ -67,7 +78,7 @@ namespace AuthAPI.Controllers
                 }));
             }
 
-            if (!_jwtService.ValidateAccessToken(accessToken))
+            if (!_jwtManager.ValidateAccessToken(accessToken))
                 return Unauthorized(JsonSerializer.Serialize(new TokenRelatedOperationResult
                 {
                     ResultType = OperationResultType.Fail,
@@ -88,15 +99,10 @@ namespace AuthAPI.Controllers
         }
 
         [HttpPost("RSAPublic")]
-        public async Task SetRSAPublicKey(PublicKeyDTO publicKeyDTO)
-        {
-            await _userProvider.SetRSAPublic(publicKeyDTO);
-        }
+        public async Task SetRsaPublicKey(PublicKeyDTO publicKeyDto) =>
+            await _publicKeyManager.SetRsaPublic(publicKeyDto);
 
         [HttpGet("RSAPublic/{username}")]
-        public async Task<string?> GetRSAPublicKey(string username)
-        {
-            return await _userProvider.GetRSAPublic(username);
-        }
+        public async Task<string?> GetRsaPublicKey(string username) => await _publicKeyManager.GetRsaPublic(username);
     }
 }

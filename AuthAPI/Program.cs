@@ -2,6 +2,8 @@ using AspNetCore.Proxy;
 using AuthAPI.DB.DBContext;
 using AuthAPI.Extensions;
 using AuthAPI.Extensions.ResponseSerializeExtension;
+using AuthAPI.Services.JWT.JWTAuthorizeCenter;
+using AuthAPI.Services.UserArea.UserPublicKeyManager;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 
@@ -65,6 +67,8 @@ builder.Services.UseJWTGenerator();
 //Используем класс-валидатор для логина и пароля
 builder.Services.UseUserCredentialsValidator();
 builder.Services.AddAuthorization();
+builder.Services.AddTransient<IPublicKeyManager, PublicKeyManager>();
+builder.Services.AddTransient<IJwtAuthorizeCenter, JwtAuthorizeCenter>();
 
 builder.Services.AddRazorPages(opts =>
 {

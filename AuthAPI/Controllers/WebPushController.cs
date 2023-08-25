@@ -2,6 +2,7 @@
 using AuthAPI.Models;
 using AuthAPI.Models.Notifications;
 using AuthAPI.Services.JWT;
+using AuthAPI.Services.JWT.JWTAuthorizeCenter;
 using AuthAPI.Services.UserProvider;
 using LimpShared.Models.WebPushNotification;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,14 @@ namespace AuthAPI.Controllers
         private readonly AuthContext _authContext;
         private readonly IJwtService _jwtService;
         private readonly IUserProvider _userProvider;
+        private readonly IJwtAuthorizeCenter _jwtManager;
 
-        public WebPushController(AuthContext authContext, IJwtService jwtService, IUserProvider userProvider)
+        public WebPushController(AuthContext authContext, IJwtService jwtService, IUserProvider userProvider, IJwtAuthorizeCenter jwtManager)
         {
             _authContext = authContext;
             _jwtService = jwtService;
             _userProvider = userProvider;
+            _jwtManager = jwtManager;
         }
 
         [HttpPatch("notifications/remove")]
@@ -36,7 +39,7 @@ namespace AuthAPI.Controllers
                     ($"Cannot delete web push subscriptions: " +
                     $"{nameof(NotificationSubscriptionDTO.AccessToken)} is not a well formed JWT access token.");
 
-            bool accessTokenIsValid = _jwtService.ValidateAccessToken(accessToken);
+            bool accessTokenIsValid = _jwtManager.ValidateAccessToken(accessToken);
             if (!accessTokenIsValid)
                 throw new ArgumentException("Cannot delete web push subscriptions: given access token is not valid.");
 
@@ -77,7 +80,7 @@ namespace AuthAPI.Controllers
                     ($"Cannot subscribe to web push: " +
                     $"{nameof(subscriptionDTO.AccessToken)} is not a well formed JWT access token.");
 
-            bool accessTokenIsValid = _jwtService.ValidateAccessToken(subscriptionDTO.AccessToken);
+            bool accessTokenIsValid = _jwtManager.ValidateAccessToken(subscriptionDTO.AccessToken);
             if (!accessTokenIsValid)
                 throw new ArgumentException("Cannot subscribe to web push: given access token is not valid.");
 

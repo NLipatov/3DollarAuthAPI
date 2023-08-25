@@ -1,13 +1,9 @@
 ﻿using AuthAPI.Models;
 using AuthAPI.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
-using AuthAPI.Services.UserProvider;
-using LimpShared.Models.Authentication.Models;
-using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace AuthAPI.Services.JWT
@@ -42,45 +38,6 @@ namespace AuthAPI.Services.JWT
             var token = tokenHandler.CreateToken(tokenDescriptor);
             return tokenHandler.WriteToken(token);
         }
-
-        public bool ValidateAccessToken(string token)
-        {
-            string mySecret = _configuration["JWT:Key"]!;
-            var mySecurityKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(mySecret));
-
-            var myIssuer = _configuration["JWT:Issuer"];
-            var myAudience = _configuration["JWT:Audience"];
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            try
-            {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ClockSkew = TimeSpan.Zero,
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidIssuer = myIssuer,
-                    ValidAudience = myAudience,
-                    IssuerSigningKey = mySecurityKey,
-                    ValidateLifetime = true,
-                    LifetimeValidator = CustomLifetimeValidator
-                }, out SecurityToken validatedToken);
-            }
-            catch
-            {
-                return false;
-            }
-            return true;
-        }
-        private bool CustomLifetimeValidator(DateTime? notBefore, DateTime? expires, SecurityToken tokenToValidate, TokenValidationParameters @param)
-        {
-            if (expires != null)
-            {
-                return expires > DateTime.UtcNow;
-            }
-            return false;
-        }
         public TokenClaim? GetClaim(string token, string claimName)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -96,30 +53,6 @@ namespace AuthAPI.Services.JWT
             var tokenS = handler.ReadToken(token) as JwtSecurityToken;
             List<TokenClaim>? claimList = tokenS?.Claims?.Select(x => new TokenClaim { Name = x.Type, Value = x.Value }).ToList();
             return claimList;
-        }
-
-        public async Task<JWTPair> CreateJWTPairAsync(IUserProvider userProvider, string username)
-        {
-            string accessToken = GenerateAccessToken(await userProvider.GetUserByUsernameAsync(username) 
-                ?? throw new ArgumentException("User is not registered"));
-
-            RefreshToken refreshToken = GenerateRefreshToken();
-
-            return new JWTPair()
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-            };
-        }
-
-        private RefreshToken GenerateRefreshToken()
-        {
-            return new RefreshToken()
-            {
-                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256)),
-                Expires = DateTime.UtcNow.AddDays(7),
-                Created = DateTime.UtcNow,
-            };
         }
 
         public string GetUsernameFromAccessToken(string accessToken)
