@@ -60,7 +60,7 @@ namespace AuthAPI.Services.UserProvider
         }
 
         public async Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken)
-        {
+        {            
             using(AuthContext context = new(_configuration))
             {
                 User user = context.Users.First(x => x.Username == username);
@@ -68,6 +68,12 @@ namespace AuthAPI.Services.UserProvider
                 user.RefreshToken = refreshToken.Token;
                 user.RefreshTokenExpires = refreshToken.Expires;
                 user.RefreshTokenCreated = refreshToken.Created;
+
+                await context.RefreshTokenHistories.AddAsync(new()
+                {
+                    User = user,
+                    UserAgent = string.Empty
+                });
 
                 await context.SaveChangesAsync();
             }

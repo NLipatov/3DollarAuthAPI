@@ -33,14 +33,14 @@ public class AuthController : ControllerBase
         _credentialsValidator = credentialsValidator;
     }
 
-    [HttpPost("Register")]
+    [HttpPost("register")]
     public async Task<ActionResult<UserAuthenticationOperationResult>> Register(UserAuthentication request)
     {
         string contextId = HttpContext.Session.Id;
         return await _userProvider.RegisterUser(request, request?.Claims?.ExtractClaims());
     }
 
-    [HttpGet("Get-claim")]
+    [HttpGet("token/{token}/claims/{claimName}")]
     public ActionResult<TokenClaim> ReadClaim(string token, string claimName)
     {
         TokenClaim? result = _jwtService.GetClaim(token, claimName);
@@ -51,13 +51,13 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("Get-token-claims")]
+    [HttpGet("token/{token}/claims")]
     public ActionResult<List<TokenClaim>> ReadClaims(string token)
     {
         return Ok(_jwtService.GetTokenClaims(token));
     }
 
-    [HttpGet("Validate-access-token")]
+    [HttpGet("validate-access-token")]
     public ActionResult<string> ValidateAccessToken(string accesstoken)
     {
         string result;
@@ -82,12 +82,7 @@ public class AuthController : ControllerBase
 
         return Ok(result);
     }
-
-    /// <summary>
-    /// Метод для получения валидного токена
-    /// По логину и паролю юзера из текущего userProvider можно получить JWT
-    /// <paramref name="request"/>
-    /// </summary>
+    
     [HttpPost("get-token")]
     public async Task<ActionResult<string>> GetToken(UserAuthentication request)
     {
@@ -108,9 +103,6 @@ public class AuthController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Фронт решает сам когда ему дёрнуть эту ручку и обновить Access Token и Refresh Token
-    /// </summary>
     [HttpPost("refresh-token")]
     public async Task<ActionResult<string>> RefreshToken()
     {
@@ -159,17 +151,17 @@ public class AuthController : ControllerBase
         return Ok(JsonSerializer.Serialize(jwtPair));
     }
 
-    private async Task SetRefreshToken(RefreshToken newRefreshToken, UserAuthentication userDTO)
+    private async Task SetRefreshToken(RefreshToken refreshToken, UserAuthentication userDTO)
     {
-        await _userProvider.SaveRefreshTokenAsync(userDTO.Username, newRefreshToken);
+        await _userProvider.SaveRefreshTokenAsync(userDTO.Username, refreshToken);
 
         var cookieOption = new CookieOptions
         {
             HttpOnly = true,
-            Expires = newRefreshToken.Expires,
+            Expires = refreshToken.Expires,
         };
 
-        Response.Cookies.Append("refreshToken", newRefreshToken.Token, cookieOption);
+        Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOption);
     }
 
     /// <summary>
@@ -179,13 +171,13 @@ public class AuthController : ControllerBase
     /// <returns></returns>
     private async Task<string> ProvideTokensAsync(UserAuthentication request)
     {
-        JWTPair jwtPait = await _jwtService.CreateJWTPairAsync(_userProvider, request.Username);
+        JWTPair jwtPair = await _jwtService.CreateJWTPairAsync(_userProvider, request.Username);
+        
+        await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
 
-        await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPait.RefreshToken);
+        await SetRefreshToken(jwtPair.RefreshToken, request);
 
-        await SetRefreshToken(jwtPait.RefreshToken, request);
-
-        return jwtPait.AccessToken;
+        return jwtPair.AccessToken;
     }
 
     /// <summary>
@@ -195,10 +187,10 @@ public class AuthController : ControllerBase
     /// <returns></returns>
     private async Task<string> ProvideAccessAndRefreshTokensAsync(UserAuthentication request)
     {
-        JWTPair jwtPait = await _jwtService.CreateJWTPairAsync(_userProvider, request.Username);
+        JWTPair jwtPair = await _jwtService.CreateJWTPairAsync(_userProvider, request.Username);
+        
+        await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
 
-        await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPait.RefreshToken);
-
-        return JsonSerializer.Serialize(jwtPait);
+        return JsonSerializer.Serialize(jwtPair);
     }
 }

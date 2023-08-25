@@ -22,7 +22,6 @@ public interface IUserProvider
     public Task UpdateCounter(byte[] credentialId, uint counter);
     public Task<List<User>> GetUsersAsync();
     public Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request, List<UserClaim>? claims);
-    [Obsolete]
     public Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken);
     public Task SaveRefreshTokenAsync(string username, RefreshTokenDTO dto);
     public Task SetRSAPublic(PublicKeyDTO publicKeyDTO);
