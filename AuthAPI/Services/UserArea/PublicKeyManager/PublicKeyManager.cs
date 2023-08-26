@@ -1,9 +1,9 @@
 using AuthAPI.DB.DBContext;
-using AuthAPI.Models;
+using AuthAPI.DB.Models;
 using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuthAPI.Services.UserArea.UserPublicKeyManager;
+namespace AuthAPI.Services.UserArea.PublicKeyManager;
 
 public class PublicKeyManager : IPublicKeyManager
 {
@@ -14,13 +14,13 @@ public class PublicKeyManager : IPublicKeyManager
         _configuration = configuration;
     }
     
-    public async Task SetRsaPublic(PublicKeyDTO publicKeyDTO)
+    public async Task SetRsaPublic(PublicKeyDto publicKeyDto)
     {
         using (AuthContext context = new(_configuration))
         {
-            User? targetUser = await context.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == publicKeyDTO.Username);
+            User? targetUser = await context.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == publicKeyDto.Username);
             if (targetUser == null)
-                throw new ArgumentException($"There is no user with specified username: '{publicKeyDTO.Username}'");
+                throw new ArgumentException($"There is no user with specified username: '{publicKeyDto.Username}'");
 
             UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
             if (publicKeyClaim == null)
@@ -29,12 +29,12 @@ public class PublicKeyManager : IPublicKeyManager
                 {
                     Name = "PublicKey",
                     Type = "RSA Public Key",
-                    Value = publicKeyDTO.Key,
+                    Value = publicKeyDto.Key,
                 });
             }
             else
             {
-                publicKeyClaim.Value = publicKeyDTO.Key;
+                publicKeyClaim.Value = publicKeyDto.Key;
             }
 
             await context.SaveChangesAsync();
@@ -43,13 +43,13 @@ public class PublicKeyManager : IPublicKeyManager
 
     public async Task<string?> GetRsaPublic(string username)
     {
-        using (AuthContext context = new(_configuration))
+        await using (AuthContext context = new(_configuration))
         {
-            User? targetUser = await context.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == username);
+            var targetUser = await context.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == username);
             if (targetUser == null)
                 throw new ArgumentException($"There is no user with specified username: '{username}'");
 
-            UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
+            var publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
 
             return publicKeyClaim?.Value;
         }

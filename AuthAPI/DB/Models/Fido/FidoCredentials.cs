@@ -1,7 +1,7 @@
-﻿using Fido2NetLib.Objects;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using Fido2NetLib.Objects;
 
-namespace AuthAPI.Models.Fido2
+namespace AuthAPI.DB.Models.Fido
 {
     public class FidoCredential
     {

@@ -1,12 +1,12 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AuthAPI.Models;
-using AuthAPI.Models.ModelExtensions;
+using AuthAPI.DB.Models;
+using AuthAPI.DB.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthAPI.Services.JWT.JwtReading
+namespace AuthAPI.Services.JWT.JwtReading.Implementation
 {
     public class JwtReader : IJwtReader
     {

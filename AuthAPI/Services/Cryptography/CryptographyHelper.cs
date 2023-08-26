@@ -14,7 +14,7 @@ public class CryptographyHelper : ICryptographyHelper
         }
     }
 
-    public bool VerifyHash(string originalData, byte[] storedHash, byte[] salt)
+    public bool VerifyHash(string originalData, IEnumerable<byte> storedHash, byte[] salt)
     {
         using (var hmac = new HMACSHA512(salt))
         {

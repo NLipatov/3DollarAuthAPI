@@ -1,8 +1,7 @@
-﻿using AuthAPI.Models.Notifications;
-using LimpShared.Models.WebPushNotification;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using AuthAPI.DB.Models.WebPushNotifications;
 
-namespace AuthAPI.Models;
+namespace AuthAPI.DB.Models;
 
 public class User : IUser
 {

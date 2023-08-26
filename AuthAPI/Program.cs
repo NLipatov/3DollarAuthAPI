@@ -1,10 +1,11 @@
 using AspNetCore.Proxy;
 using AuthAPI.DB.DBContext;
 using AuthAPI.Extensions;
-using AuthAPI.Extensions.ResponseSerializeExtension;
 using AuthAPI.Services.JWT.JwtAuthentication;
+using AuthAPI.Services.JWT.JwtAuthentication.Implementation;
 using AuthAPI.Services.JWT.JwtReading;
-using AuthAPI.Services.UserArea.UserPublicKeyManager;
+using AuthAPI.Services.JWT.JwtReading.Implementation;
+using AuthAPI.Services.UserArea.PublicKeyManager;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 
@@ -15,16 +16,16 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+var myAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
 builder.Services.AddDbContext<AuthContext>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      builder =>
+    options.AddPolicy(name: myAllowSpecificOrigins,
+                      corsPolicyBuilder =>
                       {
-                          builder
+                          corsPolicyBuilder
                           .AllowAnyOrigin()
                           .AllowAnyHeader();
                       });
@@ -39,7 +40,7 @@ builder.Services.AddSwaggerGen(options =>
         In = ParameterLocation.Header,
         Name = "Authorization",
         Description = "Bearer Authentication With JWT",
-        Type = SecuritySchemeType.Http,
+        Type = SecuritySchemeType.Http
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
@@ -58,12 +59,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddProxies();
-//Используем ICryptographyHelper
 builder.Services.UseCryptographyHelper();
-//Пока нет БД с юзерами, используем фейковый провайдер юзеров
-//builder.Services.UseFakeUserProvider();
 builder.Services.UseUserProvider();
-//Используем класс-валидатор для логина и пароля
 builder.Services.UseUserCredentialsValidator();
 builder.Services.AddAuthorization();
 builder.Services.AddTransient<IJwtReader, JwtReader>();
@@ -72,7 +69,7 @@ builder.Services.AddTransient<IJwtAuthenticationService, JwtAuthenticationServic
 
 builder.Services.AddRazorPages(opts =>
 {
-    // we don't care about antiforgery in the demo
+    // we don't care about anti-forgery in the demo
     opts.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
 });
 
@@ -101,15 +98,15 @@ builder.Services.AddFido2(options =>
 });
 
 #region CORS setup
-builder.Services.AddCors(p => p.AddPolicy("loose-CORS", builder =>
+builder.Services.AddCors(p => p.AddPolicy("loose-CORS", corsPolicyBuilder =>
 {
-    builder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+    corsPolicyBuilder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
 }));
 #endregion
 
 var app = builder.Build();
 
-app.UseCors(MyAllowSpecificOrigins);
+app.UseCors(myAllowSpecificOrigins);
 app.UseSession();
 
 app.UseAuthorization();
@@ -122,7 +119,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//Используем определённую ранее политику CORS
 app.UseCors("loose-CORS");
 
 app.UseHttpsRedirection();

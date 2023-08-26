@@ -1,13 +1,12 @@
-﻿using AuthAPI.Models;
+﻿using System.Security.Claims;
+using AuthAPI.DB.Models;
 using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.Claims;
-using LimpShared.Models.Authentication.Models.UserAuthentication;
-using System.Security.Claims;
 
-namespace AuthAPI.DTOs.Claims
+namespace AuthAPI.Extensions
 {
-    public static class UserClaimsDTOExtensions
+    public static class UserClaimsDtoExtensions
     {
-        public static List<UserClaim> ExtractClaims(this List<UserClaimsDTO> dtos)
+        public static List<UserClaim> ExtractClaims(this List<UserClaimsDto> dtos)
         {
             List<UserClaim> claims = new();
 

@@ -1,17 +1,16 @@
-﻿using AuthAPI.Mapping;
-using AuthAPI.Models;
-using AuthAPI.Services.JWT;
-using AuthAPI.Services.UserProvider;
-using LimpShared.Models.Authentication.Models;
+﻿using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using LimpShared.Models.Users;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
+using AuthAPI.DB.Models;
+using AuthAPI.DB.Models.ModelExtensions;
 using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
-using AuthAPI.Services.UserArea.UserPublicKeyManager;
+using AuthAPI.Services.UserArea.PublicKeyManager;
+using AuthAPI.Services.UserArea.UserProvider;
 
 namespace AuthAPI.Controllers
 {
@@ -37,9 +36,9 @@ namespace AuthAPI.Controllers
         }
 
         [HttpGet("user/{username}/exist")]
-        public async Task<ActionResult<IsUserExistDTO>> GetUser(string username)
+        public async Task<ActionResult<IsUserExistDto>> GetUser(string username)
         {
-            IsUserExistDTO result = await _userProvider.IsUserExist(username);
+            IsUserExistDto result = await _userProvider.IsUserExist(username);
 
             return Ok(result);
         }
@@ -50,7 +49,7 @@ namespace AuthAPI.Controllers
             var users = await _userProvider.GetUsersOnline();
 
             var dtos = users
-                .Select(x => x.ToDTO())
+                .Select(x => x.ToDto())
                 .ToList();
 
             return Ok(dtos);
@@ -100,7 +99,7 @@ namespace AuthAPI.Controllers
         }
 
         [HttpPost("RSAPublic")]
-        public async Task SetRsaPublicKey(PublicKeyDTO publicKeyDto) =>
+        public async Task SetRsaPublicKey(PublicKeyDto publicKeyDto) =>
             await _publicKeyManager.SetRsaPublic(publicKeyDto);
 
         [HttpGet("RSAPublic/{username}")]

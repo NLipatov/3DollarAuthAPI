@@ -1,5 +1,5 @@
 ﻿#nullable disable
-namespace AuthAPI.Models;
+namespace AuthAPI.DB.Models;
 
 public record RefreshTokenHistory
 {

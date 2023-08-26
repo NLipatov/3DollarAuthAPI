@@ -1,6 +1,6 @@
 ﻿using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 
-namespace AuthAPI.Services.UserArea.UserPublicKeyManager;
+namespace AuthAPI.Services.UserArea.PublicKeyManager;
 
 /// <summary>
 /// Stores a user public key on a server;
@@ -8,6 +8,6 @@ namespace AuthAPI.Services.UserArea.UserPublicKeyManager;
 /// </summary>
 public interface IPublicKeyManager
 {
-    public Task SetRsaPublic(PublicKeyDTO publicKeyDTO);
+    public Task SetRsaPublic(PublicKeyDto publicKeyDto);
     public Task<string?> GetRsaPublic(string username);
 }

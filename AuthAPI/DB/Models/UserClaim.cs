@@ -1,6 +1,6 @@
 ﻿#nullable disable
 
-namespace AuthAPI.Models
+namespace AuthAPI.DB.Models
 {
     public class UserClaim
     {

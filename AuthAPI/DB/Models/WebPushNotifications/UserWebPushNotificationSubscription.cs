@@ -1,4 +1,4 @@
-﻿namespace AuthAPI.Models.Notifications
+﻿namespace AuthAPI.DB.Models.WebPushNotifications
 {
     public class UserWebPushNotificationSubscription
     {

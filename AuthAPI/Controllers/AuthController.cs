@@ -1,17 +1,17 @@
-﻿using AuthAPI.DTOs.Claims;
-using AuthAPI.Extensions.ResponseSerializeExtension;
-using AuthAPI.Models;
+﻿using AuthAPI.Extensions.ResponseSerializeExtension;
 using AuthAPI.Services.JWT;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
-using AuthAPI.Services.UserProvider;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using AuthAPI.DB.Models;
+using AuthAPI.Extensions;
 using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
+using AuthAPI.Services.UserArea.UserProvider;
 
 namespace AuthAPI.Controllers;
 
@@ -72,7 +72,7 @@ public class AuthController : ControllerBase
             {
                 ResultType = OperationResultType.Success,
                 Message = "Token is valid",
-            }.AsJSON();
+            }.AsJson();
 
         }
         else
@@ -82,7 +82,7 @@ public class AuthController : ControllerBase
                 ResultType = OperationResultType.Fail,
                 FailureType = FailureType.InvalidToken,
                 Message = "Token is not valid",
-            }.AsJSON();
+            }.AsJson();
         }
 
         return Ok(result);
@@ -91,15 +91,15 @@ public class AuthController : ControllerBase
     [HttpPost("get-token")]
     public async Task<ActionResult<string>> GetToken(UserAuthentication request)
     {
-        ValidationResult ValidationResult = await _credentialsValidator.ValidateCredentials(request);
+        ValidationResult validationResult = await _credentialsValidator.ValidateCredentials(request);
 
-        if (ValidationResult == ValidationResult.Success)
+        if (validationResult == ValidationResult.Success)
         {
             return await ProvideAccessAndRefreshTokensAsync(request);
         }
         else
         {
-            return ValidationResult switch
+            return validationResult switch
             {
                 ValidationResult.WrongPassword => (ActionResult<string>)BadRequest("Wrong Password"),
                 ValidationResult.WrongUsername => (ActionResult<string>)BadRequest("Wrong Username"),
@@ -129,7 +129,7 @@ public class AuthController : ControllerBase
                    ?? 
                    throw new ArgumentException($"There's no user with such username: '{refreshTokenOwner.Username}'.");
         
-        JWTPair jwtPair = _jwtManager.CreateJwtPair(user);
+        JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
 
         await SetRefreshToken(jwtPair.RefreshToken,
             new UserAuthentication { Username = refreshTokenOwner.Username });
@@ -138,7 +138,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh-tokens-explicitly")]
-    public async Task<ActionResult<string>> RefreshTokensExplicitly(RefreshTokenDTO dto)
+    public async Task<ActionResult<string>> RefreshTokensExplicitly(RefreshTokenDto dto)
     {
         var users = await _userProvider.GetUsersAsync();
 
@@ -157,16 +157,16 @@ public class AuthController : ControllerBase
                    ?? 
                    throw new ArgumentException($"There's no user with such username: '{refreshTokenOwner.Username}'.");
 
-        JWTPair jwtPair = _jwtManager.CreateJwtPair(user);
+        JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
 
         await _userProvider.SaveRefreshTokenAsync(refreshTokenOwner.Username, dto);
 
         return Ok(JsonSerializer.Serialize(jwtPair));
     }
 
-    private async Task SetRefreshToken(RefreshToken refreshToken, UserAuthentication userDTO)
+    private async Task SetRefreshToken(RefreshToken refreshToken, UserAuthentication userDto)
     {
-        await _userProvider.SaveRefreshTokenAsync(userDTO.Username, refreshToken);
+        await _userProvider.SaveRefreshTokenAsync(userDto.Username, refreshToken);
 
         var cookieOption = new CookieOptions
         {
@@ -188,7 +188,7 @@ public class AuthController : ControllerBase
                    ?? 
                    throw new ArgumentException($"There's no user with such username: '{request.Username}'.");
         
-        JWTPair jwtPair = _jwtManager.CreateJwtPair(user);
+        JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
         
         await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
 
@@ -208,7 +208,7 @@ public class AuthController : ControllerBase
                    ?? 
                    throw new ArgumentException($"There's no user with such username: '{request.Username}'.");
         
-        JWTPair jwtPair = _jwtManager.CreateJwtPair(user);
+        JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
         
         await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
 

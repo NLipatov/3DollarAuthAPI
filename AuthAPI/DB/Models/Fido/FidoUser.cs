@@ -1,8 +1,8 @@
-﻿using Fido2NetLib;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Fido2NetLib;
 
-namespace AuthAPI.Models.Fido2
+namespace AuthAPI.DB.Models.Fido
 {
     public class FidoUser
     {

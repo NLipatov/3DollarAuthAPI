@@ -4,7 +4,7 @@ namespace AuthAPI.Extensions.ResponseSerializeExtension
 {
     public static class ResponseSerializer
     {
-        public static string AsJSON(this object responseData)
+        public static string AsJson(this object responseData)
         {
             return JsonSerializer.Serialize(responseData);
         }

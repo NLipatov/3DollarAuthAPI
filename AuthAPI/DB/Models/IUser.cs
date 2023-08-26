@@ -1,4 +1,4 @@
-﻿namespace AuthAPI.Models
+﻿namespace AuthAPI.DB.Models
 {
     public interface IUser
     {

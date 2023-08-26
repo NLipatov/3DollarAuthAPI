@@ -1,4 +1,4 @@
-﻿namespace AuthAPI.Services.UserProvider.ServiceExceptions
+﻿namespace AuthAPI.Services.UserArea.UserProvider.ServiceExceptions
 {
     public class UserProviderException : Exception
     {

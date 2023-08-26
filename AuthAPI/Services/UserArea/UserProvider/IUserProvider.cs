@@ -1,15 +1,15 @@
-﻿using AuthAPI.Models;
-using AuthAPI.Models.Fido2;
+﻿using AuthAPI.DB.Models;
+using AuthAPI.DB.Models.Fido;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.Users;
 
-namespace AuthAPI.Services.UserProvider;
+namespace AuthAPI.Services.UserArea.UserProvider;
 
 public interface IUserProvider
 {
     public Task<List<User>> GetUsersOnline();
-    public Task<IsUserExistDTO> IsUserExist(string username);
+    public Task<IsUserExistDto> IsUserExist(string username);
     public Task<User?> GetUserByUsernameAsync(string username);
     public Task<FidoUser?> GetFidoUserByUsernameAsync(string username);
     public Task<FidoUser> RegisterFidoUser(string name, string? displayName = null);
@@ -22,5 +22,5 @@ public interface IUserProvider
     public Task<List<User>> GetUsersAsync();
     public Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request, List<UserClaim>? claims);
     public Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken);
-    public Task SaveRefreshTokenAsync(string username, RefreshTokenDTO dto);
+    public Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto);
 }

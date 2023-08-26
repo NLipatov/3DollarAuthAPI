@@ -1,4 +1,4 @@
-﻿using AuthAPI.Models;
+﻿using AuthAPI.DB.Models;
 using LimpShared.Models.Authentication.Models;
 
 namespace AuthAPI.Services.JWT.JwtAuthentication;
@@ -16,5 +16,5 @@ public interface IJwtAuthenticationService
     /// <summary>
     /// Create new JWT pair with no validation
     /// </summary>
-    public JWTPair CreateJwtPair(IUser user);
+    public JwtPair CreateJwtPair(IUser user);
 }

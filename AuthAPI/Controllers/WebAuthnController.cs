@@ -1,19 +1,17 @@
-﻿using AuthAPI.Models.Fido2;
-using AuthAPI.Services.UserProvider;
+﻿using AuthAPI.DB.Models.Fido;
+using AuthAPI.Services.UserArea.UserProvider;
 using Fido2NetLib;
-using Fido2NetLib.Development;
 using Fido2NetLib.Objects;
 using Microsoft.AspNetCore.Mvc;
-using System.Text;
 
-namespace Fido2Demo;
+namespace AuthAPI.Controllers;
 
 [Route("api/[controller]")]
 public class WebAuthnController : Controller
 {
-    private static string JsonOptions = string.Empty;
+    private static string _jsonOptions = string.Empty;
     private IFido2 _fido2;
-    public static IMetadataService _mds;
+    public static IMetadataService Mds;
     //public static readonly DevelopmentInMemoryStore DemoStorage = new DevelopmentInMemoryStore();
     private readonly IUserProvider _userProvider;
 
@@ -92,7 +90,7 @@ public class WebAuthnController : Controller
 
             // 4. Temporarily store options, session/in-memory cache/redis/db
             //HttpContext.Session.SetString("fido2.attestationOptions", options.ToJson());
-            JsonOptions = options.ToJson();
+            _jsonOptions = options.ToJson();
 
             // 5. return options to client
             return Json(options);
@@ -110,7 +108,7 @@ public class WebAuthnController : Controller
         {
             // 1. get the options we sent the client
             //var jsonOptions = HttpContext.Session.GetString("fido2.attestationOptions");
-            var options = CredentialCreateOptions.FromJson(JsonOptions);
+            var options = CredentialCreateOptions.FromJson(_jsonOptions);
 
             // 2. Create callback so that lib can verify credential id is unique to this user
             IsCredentialIdUniqueToUserAsyncDelegate callback = async (args, cancellationToken) =>
@@ -145,7 +143,7 @@ public class WebAuthnController : Controller
                 UserId = options.User.Id
             }, 
 
-            new AuthAPI.Models.Fido2.FidoCredential
+            new FidoCredential
             {
                 Descriptor = new PublicKeyCredentialDescriptor(success.Result.CredentialId),
                 PublicKey = success.Result.PublicKey,

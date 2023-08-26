@@ -6,7 +6,7 @@ namespace AuthAPI.Controllers
     [ApiController]
     public class HealthController : ControllerBase
     {
-        private string[] oKResponses = new string[5]
+        private string[] _oKResponses = new string[5]
         {
             "Yes!",
             "Yes I am!",
@@ -20,7 +20,7 @@ namespace AuthAPI.Controllers
         {
             Random random = new Random();
 
-            string response = oKResponses[random.Next(0, 4)];
+            string response = _oKResponses[random.Next(0, 4)];
 
             return Ok(response);
         }

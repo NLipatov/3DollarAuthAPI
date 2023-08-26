@@ -1,6 +1,6 @@
-﻿using AuthAPI.Models;
+﻿using AuthAPI.DB.Models;
 using AuthAPI.Services.Cryptography;
-using AuthAPI.Services.UserProvider;
+using AuthAPI.Services.UserArea.UserProvider;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 
 namespace AuthAPI.Services.UserCredentialsValidation

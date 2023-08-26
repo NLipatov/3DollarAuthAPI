@@ -2,12 +2,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using AuthAPI.Models;
-using AuthAPI.Models.ModelExtensions;
+using AuthAPI.DB.Models;
+using AuthAPI.DB.Models.ModelExtensions;
 using LimpShared.Models.Authentication.Models;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthAPI.Services.JWT.JwtAuthentication;
+namespace AuthAPI.Services.JWT.JwtAuthentication.Implementation;
 
 public class JwtAuthenticationService : IJwtAuthenticationService
 {
@@ -49,7 +49,7 @@ public class JwtAuthenticationService : IJwtAuthenticationService
         return true;
     }
     
-    private bool CustomLifetimeValidator(DateTime? notBefore, DateTime? expires, SecurityToken tokenToValidate, TokenValidationParameters @param)
+    private bool CustomLifetimeValidator(DateTime? notBefore, DateTime? expires, SecurityToken tokenToValidate, TokenValidationParameters param)
     {
         if (expires != null)
         {
@@ -58,13 +58,13 @@ public class JwtAuthenticationService : IJwtAuthenticationService
         return false;
     }
 
-    public JWTPair CreateJwtPair(IUser user)
+    public JwtPair CreateJwtPair(IUser user)
     {
-        string accessToken = GenerateAccessToken(user);
+        var accessToken = GenerateAccessToken(user);
 
-        RefreshToken refreshToken = GenerateRefreshToken();
+        var refreshToken = GenerateRefreshToken();
 
-        return new JWTPair()
+        return new JwtPair
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
@@ -95,11 +95,11 @@ public class JwtAuthenticationService : IJwtAuthenticationService
     
     private RefreshToken GenerateRefreshToken()
     {
-        return new RefreshToken()
+        return new RefreshToken
         {
             Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(256)),
             Expires = DateTime.UtcNow.AddDays(7),
-            Created = DateTime.UtcNow,
+            Created = DateTime.UtcNow
         };
     }
 }

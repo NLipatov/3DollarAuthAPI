@@ -1,20 +1,18 @@
-﻿using AuthAPI.DB.DBContext;
-using AuthAPI.Mapping;
-using AuthAPI.Models;
-using AuthAPI.Models.Fido2;
+﻿using System.Text;
+using AuthAPI.DB.DBContext;
+using AuthAPI.DB.Models;
+using AuthAPI.DB.Models.Fido;
+using AuthAPI.DB.Models.ModelExtensions;
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.ModelBuilder;
-using AuthAPI.Services.UserProvider.ServiceExceptions;
+using AuthAPI.Services.UserArea.UserProvider.ServiceExceptions;
 using LimpShared.Models.Authentication.Models;
-using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using LimpShared.Models.Users;
 using Microsoft.EntityFrameworkCore;
-using NSec.Cryptography;
-using System.Text;
 
-namespace AuthAPI.Services.UserProvider
+namespace AuthAPI.Services.UserArea.UserProvider
 {
     public class UserProvider : IUserProvider
     {
@@ -43,7 +41,7 @@ namespace AuthAPI.Services.UserProvider
                 return new UserAuthenticationOperationResult
                 {
                     SystemMessage = "User with this username already exists",
-                    UserDTO = null,
+                    UserDto = null,
                     ResultType = OperationResultType.Fail
                 };
             #endregion
@@ -55,7 +53,7 @@ namespace AuthAPI.Services.UserProvider
             return new UserAuthenticationOperationResult()
             {
                 SystemMessage = "Success",
-                UserDTO = user.ToDTO(),
+                UserDto = user.ToDto(),
             };
         }
 
@@ -79,7 +77,7 @@ namespace AuthAPI.Services.UserProvider
             }
         }
 
-        public async Task SaveRefreshTokenAsync(string username, RefreshTokenDTO dto)
+        public async Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto)
         {
             using(AuthContext context = new(_configuration))
             {
@@ -239,7 +237,7 @@ namespace AuthAPI.Services.UserProvider
             return newFidoUser;
         }
 
-        public async Task<IsUserExistDTO> IsUserExist(string username)
+        public async Task<IsUserExistDto> IsUserExist(string username)
         {
             using(AuthContext context = new(_configuration))
             {

@@ -1,6 +1,6 @@
-﻿using AuthAPI.Models;
-using AuthAPI.Models.Fido2;
-using AuthAPI.Models.Notifications;
+﻿using AuthAPI.DB.Models;
+using AuthAPI.DB.Models.Fido;
+using AuthAPI.DB.Models.WebPushNotifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.DB.DBContext
