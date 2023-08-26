@@ -25,12 +25,12 @@ public class AuthController : ControllerBase
     private readonly IJwtAuthenticationService _jwtManager;
 
     public AuthController
-        (
-            IUserProvider userProvider,
-            IJwtReader jwtReader,
-            IUserCredentialsValidator credentialsValidator,
-            IJwtAuthenticationService jwtManager
-        )
+    (
+        IUserProvider userProvider,
+        IJwtReader jwtReader,
+        IUserCredentialsValidator credentialsValidator,
+        IJwtAuthenticationService jwtManager
+    )
     {
         _userProvider = userProvider;
         _jwtReader = jwtReader;
@@ -53,6 +53,7 @@ public class AuthController : ControllerBase
         {
             return NotFound();
         }
+
         return Ok(result);
     }
 
@@ -87,7 +88,7 @@ public class AuthController : ControllerBase
 
         return Ok(result);
     }
-    
+
     [HttpPost("get-token")]
     public async Task<ActionResult<string>> GetToken(UserAuthentication request)
     {
@@ -114,7 +115,8 @@ public class AuthController : ControllerBase
         var refreshToken = Request.Cookies["refreshToken"];
 
         //В хранилище юзеров смотрим, есть ли у нас юзер, которому был выдан этот refreshToken
-        User? refreshTokenOwner = (await _userProvider.GetUsersAsync()).FirstOrDefault(x => x.RefreshToken == refreshToken);
+        User? refreshTokenOwner =
+            (await _userProvider.GetUsersAsync()).FirstOrDefault(x => x.RefreshToken == refreshToken);
 
         if (refreshTokenOwner == null)
         {
@@ -125,11 +127,11 @@ public class AuthController : ControllerBase
             return Unauthorized("Token expired");
         }
 
-        var user = await _userProvider.GetUserByUsernameAsync(refreshTokenOwner.Username) 
-                   ?? 
+        var user = await _userProvider.GetUserByUsernameAsync(refreshTokenOwner.Username)
+                   ??
                    throw new ArgumentException($"There's no user with such username: '{refreshTokenOwner.Username}'.");
-        
-        JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
+
+        var jwtPair = _jwtManager.CreateJwtPair(user);
 
         await SetRefreshToken(jwtPair.RefreshToken,
             new UserAuthentication { Username = refreshTokenOwner.Username });
@@ -152,9 +154,9 @@ public class AuthController : ControllerBase
         {
             return Unauthorized("Token expired");
         }
-        
-        var user = await _userProvider.GetUserByUsernameAsync(refreshTokenOwner.Username) 
-                   ?? 
+
+        var user = await _userProvider.GetUserByUsernameAsync(refreshTokenOwner.Username)
+                   ??
                    throw new ArgumentException($"There's no user with such username: '{refreshTokenOwner.Username}'.");
 
         JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
@@ -184,12 +186,12 @@ public class AuthController : ControllerBase
     /// <returns></returns>
     private async Task<string> ProvideTokensAsync(UserAuthentication request)
     {
-        var user = await _userProvider.GetUserByUsernameAsync(request.Username) 
-                   ?? 
+        var user = await _userProvider.GetUserByUsernameAsync(request.Username)
+                   ??
                    throw new ArgumentException($"There's no user with such username: '{request.Username}'.");
-        
+
         JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
-        
+
         await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
 
         await SetRefreshToken(jwtPair.RefreshToken, request);
@@ -204,12 +206,12 @@ public class AuthController : ControllerBase
     /// <returns></returns>
     private async Task<string> ProvideAccessAndRefreshTokensAsync(UserAuthentication request)
     {
-        var user = await _userProvider.GetUserByUsernameAsync(request.Username) 
-                   ?? 
+        var user = await _userProvider.GetUserByUsernameAsync(request.Username)
+                   ??
                    throw new ArgumentException($"There's no user with such username: '{request.Username}'.");
-        
+
         JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
-        
+
         await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
 
         return JsonSerializer.Serialize(jwtPair);
