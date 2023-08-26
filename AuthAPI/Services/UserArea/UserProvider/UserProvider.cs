@@ -6,9 +6,9 @@ using AuthAPI.DB.Models.ModelExtensions;
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.ModelBuilder;
 using AuthAPI.Services.UserArea.UserProvider.ServiceExceptions;
+using LimpShared.Models.Authentication.Enums;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
-using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using LimpShared.Models.Users;
 using Microsoft.EntityFrameworkCore;
 

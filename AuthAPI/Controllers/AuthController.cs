@@ -1,10 +1,8 @@
 ﻿using AuthAPI.Extensions.ResponseSerializeExtension;
-using AuthAPI.Services.JWT;
 using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
-using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using AuthAPI.DB.Models;
@@ -12,6 +10,7 @@ using AuthAPI.Extensions;
 using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.UserArea.UserProvider;
+using LimpShared.Models.Authentication.Enums;
 
 namespace AuthAPI.Controllers;
 
