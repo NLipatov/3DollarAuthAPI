@@ -108,36 +108,6 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("refresh-token")]
-    public async Task<ActionResult<string>> RefreshToken()
-    {
-        var refreshToken = Request.Cookies["refreshToken"];
-
-        //В хранилище юзеров смотрим, есть ли у нас юзер, которому был выдан этот refreshToken
-        User? refreshTokenOwner =
-            (await _userProvider.GetUsersAsync()).FirstOrDefault(x => x.RefreshToken == refreshToken);
-
-        if (refreshTokenOwner == null)
-        {
-            return BadRequest("Invalid refresh token");
-        }
-        else if (refreshTokenOwner.RefreshTokenExpires < DateTime.UtcNow)
-        {
-            return Unauthorized("Token expired");
-        }
-
-        var user = await _userProvider.GetUserByUsernameAsync(refreshTokenOwner.Username)
-                   ??
-                   throw new ArgumentException($"There's no user with such username: '{refreshTokenOwner.Username}'.");
-
-        var jwtPair = _jwtManager.CreateJwtPair(user);
-
-        await SetRefreshToken(jwtPair.RefreshToken,
-            new UserAuthentication { Username = refreshTokenOwner.Username });
-
-        return Ok(jwtPair.AccessToken);
-    }
-
     [HttpPost("refresh-tokens-explicitly")]
     public async Task<ActionResult<string>> RefreshTokensExplicitly(RefreshTokenDto dto)
     {
@@ -165,39 +135,6 @@ public class AuthController : ControllerBase
         return Ok(JsonSerializer.Serialize(jwtPair));
     }
 
-    private async Task SetRefreshToken(RefreshToken refreshToken, UserAuthentication userDto)
-    {
-        await _userProvider.SaveRefreshTokenAsync(userDto.Username, refreshToken);
-
-        var cookieOption = new CookieOptions
-        {
-            HttpOnly = true,
-            Expires = refreshToken.Expires,
-        };
-
-        Response.Cookies.Append("refreshToken", refreshToken.Token, cookieOption);
-    }
-
-    /// <summary>
-    /// Provides an access token in response payload and stores refresh token in Cookies
-    /// </summary>
-    /// <param name="request"></param>
-    /// <returns></returns>
-    private async Task<string> ProvideTokensAsync(UserAuthentication request)
-    {
-        var user = await _userProvider.GetUserByUsernameAsync(request.Username)
-                   ??
-                   throw new ArgumentException($"There's no user with such username: '{request.Username}'.");
-
-        JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
-
-        await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
-
-        await SetRefreshToken(jwtPair.RefreshToken, request);
-
-        return jwtPair.AccessToken;
-    }
-
     /// <summary>
     /// Provides both access and refresh token in response payload
     /// </summary>
@@ -211,7 +148,12 @@ public class AuthController : ControllerBase
 
         JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
 
-        await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
+        await _userProvider.SaveRefreshTokenAsync(request.Username, new RefreshTokenDto
+        {
+            UserAgent = request.UserAgent,
+            UserAgentId = request.UserAgentId
+        });
+        // await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
 
         return JsonSerializer.Serialize(jwtPair);
     }

@@ -83,9 +83,12 @@ namespace AuthAPI.Services.UserArea.UserProvider
             {
                 User user = context.Users.First(x => x.Username == username);
 
-                user.RefreshToken = dto.RefreshToken.Token;
-                user.RefreshTokenExpires = dto.RefreshToken.Expires;
-                user.RefreshTokenCreated = dto.RefreshToken.Created;
+                if (dto.RefreshToken is not null)
+                {
+                    user.RefreshToken = dto.RefreshToken.Token;
+                    user.RefreshTokenExpires = dto.RefreshToken.Expires;
+                    user.RefreshTokenCreated = dto.RefreshToken.Created;
+                }
 
                 await context.RefreshTokenHistories.AddAsync(new()
                 {
