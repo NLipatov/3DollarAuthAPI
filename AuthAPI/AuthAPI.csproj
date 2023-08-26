@@ -36,7 +36,6 @@
 
   <ItemGroup>
     <Folder Include="Scripts\" />
-    <Folder Include="Services\JWT\JWTReading\" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,8 @@ using AspNetCore.Proxy;
 using AuthAPI.DB.DBContext;
 using AuthAPI.Extensions;
 using AuthAPI.Extensions.ResponseSerializeExtension;
-using AuthAPI.Services.JWT.JWTAuthorizeCenter;
+using AuthAPI.Services.JWT.JwtAuthentication;
+using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.UserArea.UserPublicKeyManager;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
@@ -62,13 +63,12 @@ builder.Services.UseCryptographyHelper();
 //Пока нет БД с юзерами, используем фейковый провайдер юзеров
 //builder.Services.UseFakeUserProvider();
 builder.Services.UseUserProvider();
-//Используем генератор JWT IJwtService
-builder.Services.UseJWTGenerator();
 //Используем класс-валидатор для логина и пароля
 builder.Services.UseUserCredentialsValidator();
 builder.Services.AddAuthorization();
+builder.Services.AddTransient<IJwtReader, JwtReader>();
 builder.Services.AddTransient<IPublicKeyManager, PublicKeyManager>();
-builder.Services.AddTransient<IJwtAuthorizeCenter, JwtAuthorizeCenter>();
+builder.Services.AddTransient<IJwtAuthenticationService, JwtAuthenticationService>();
 
 builder.Services.AddRazorPages(opts =>
 {

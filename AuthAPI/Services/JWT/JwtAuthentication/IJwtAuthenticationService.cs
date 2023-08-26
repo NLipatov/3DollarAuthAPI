@@ -1,9 +1,12 @@
 ﻿using AuthAPI.Models;
 using LimpShared.Models.Authentication.Models;
 
-namespace AuthAPI.Services.JWT.JWTAuthorizeCenter;
+namespace AuthAPI.Services.JWT.JwtAuthentication;
 
-public interface IJwtAuthorizeCenter
+/// <summary>
+/// Creates and validates JWT-tokens
+/// </summary>
+public interface IJwtAuthenticationService
 {
     /// <summary>
     /// Validates given access token

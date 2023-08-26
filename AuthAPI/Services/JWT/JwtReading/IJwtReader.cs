@@ -1,8 +1,8 @@
 ﻿using AuthAPI.Services.JWT.Models;
 
-namespace AuthAPI.Services.JWT
+namespace AuthAPI.Services.JWT.JwtReading
 {
-    public interface IJwtService
+    public interface IJwtReader
     {
         public string GetUsernameFromAccessToken(string accessToken);
         public List<TokenClaim>? GetTokenClaims(string token);

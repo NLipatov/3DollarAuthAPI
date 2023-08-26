@@ -9,7 +9,8 @@ using LimpShared.Models.Users;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
-using AuthAPI.Services.JWT.JWTAuthorizeCenter;
+using AuthAPI.Services.JWT.JwtAuthentication;
+using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.UserArea.UserPublicKeyManager;
 
 namespace AuthAPI.Controllers
@@ -19,18 +20,18 @@ namespace AuthAPI.Controllers
     public class UsersController : Controller
     {
         private readonly IUserProvider _userProvider;
-        private readonly IJwtService _jwtService;
+        private readonly IJwtReader _jwtReader;
         private readonly IPublicKeyManager _publicKeyManager;
-        private readonly IJwtAuthorizeCenter _jwtManager;
+        private readonly IJwtAuthenticationService _jwtManager;
 
         public UsersController
             (IUserProvider userProvider,
-                IJwtService jwtService,
+                IJwtReader jwtReader,
                 IPublicKeyManager publicKeyManager,
-                IJwtAuthorizeCenter jwtManager)
+                IJwtAuthenticationService jwtManager)
         {
             _userProvider = userProvider;
-            _jwtService = jwtService;
+            _jwtReader = jwtReader;
             _publicKeyManager = publicKeyManager;
             _jwtManager = jwtManager;
         }

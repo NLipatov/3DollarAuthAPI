@@ -7,13 +7,13 @@ using AuthAPI.Models.ModelExtensions;
 using LimpShared.Models.Authentication.Models;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthAPI.Services.JWT.JWTAuthorizeCenter;
+namespace AuthAPI.Services.JWT.JwtAuthentication;
 
-public class JwtAuthorizeCenter : IJwtAuthorizeCenter
+public class JwtAuthenticationService : IJwtAuthenticationService
 {
     private readonly IConfiguration _configuration;
 
-    public JwtAuthorizeCenter(IConfiguration configuration)
+    public JwtAuthenticationService(IConfiguration configuration)
     {
         _configuration = configuration;
     }

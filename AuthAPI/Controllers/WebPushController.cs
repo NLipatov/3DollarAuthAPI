@@ -2,7 +2,8 @@
 using AuthAPI.Models;
 using AuthAPI.Models.Notifications;
 using AuthAPI.Services.JWT;
-using AuthAPI.Services.JWT.JWTAuthorizeCenter;
+using AuthAPI.Services.JWT.JwtAuthentication;
+using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.UserProvider;
 using LimpShared.Models.WebPushNotification;
 using Microsoft.AspNetCore.Mvc;
@@ -15,14 +16,14 @@ namespace AuthAPI.Controllers
     public class WebPushController : ControllerBase
     {
         private readonly AuthContext _authContext;
-        private readonly IJwtService _jwtService;
+        private readonly IJwtReader _jwtReader;
         private readonly IUserProvider _userProvider;
-        private readonly IJwtAuthorizeCenter _jwtManager;
+        private readonly IJwtAuthenticationService _jwtManager;
 
-        public WebPushController(AuthContext authContext, IJwtService jwtService, IUserProvider userProvider, IJwtAuthorizeCenter jwtManager)
+        public WebPushController(AuthContext authContext, IJwtReader jwtReader, IUserProvider userProvider, IJwtAuthenticationService jwtManager)
         {
             _authContext = authContext;
-            _jwtService = jwtService;
+            _jwtReader = jwtReader;
             _userProvider = userProvider;
             _jwtManager = jwtManager;
         }
@@ -43,7 +44,7 @@ namespace AuthAPI.Controllers
             if (!accessTokenIsValid)
                 throw new ArgumentException("Cannot delete web push subscriptions: given access token is not valid.");
 
-            string username = _jwtService.GetUsernameFromAccessToken(accessToken);
+            string username = _jwtReader.GetUsernameFromAccessToken(accessToken);
 
             User? user = await _authContext.Users
                 .Include(x => x.UserWebPushNotificationSubscriptions)
@@ -84,7 +85,7 @@ namespace AuthAPI.Controllers
             if (!accessTokenIsValid)
                 throw new ArgumentException("Cannot subscribe to web push: given access token is not valid.");
 
-            string username = _jwtService.GetUsernameFromAccessToken(subscriptionDTO.AccessToken);
+            string username = _jwtReader.GetUsernameFromAccessToken(subscriptionDTO.AccessToken);
 
             User? user = await _authContext.Users
                 .Include(x => x.UserWebPushNotificationSubscriptions)

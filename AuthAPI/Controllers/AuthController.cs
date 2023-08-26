@@ -10,7 +10,8 @@ using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.AuthenticationModels.ResultTypeEnum;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using AuthAPI.Services.JWT.JWTAuthorizeCenter;
+using AuthAPI.Services.JWT.JwtAuthentication;
+using AuthAPI.Services.JWT.JwtReading;
 
 namespace AuthAPI.Controllers;
 
@@ -19,20 +20,20 @@ namespace AuthAPI.Controllers;
 public class AuthController : ControllerBase
 {
     private readonly IUserProvider _userProvider;
-    private readonly IJwtService _jwtService;
+    private readonly IJwtReader _jwtReader;
     private readonly IUserCredentialsValidator _credentialsValidator;
-    private readonly IJwtAuthorizeCenter _jwtManager;
+    private readonly IJwtAuthenticationService _jwtManager;
 
     public AuthController
         (
             IUserProvider userProvider,
-            IJwtService jwtService,
+            IJwtReader jwtReader,
             IUserCredentialsValidator credentialsValidator,
-            IJwtAuthorizeCenter jwtManager
+            IJwtAuthenticationService jwtManager
         )
     {
         _userProvider = userProvider;
-        _jwtService = jwtService;
+        _jwtReader = jwtReader;
         _credentialsValidator = credentialsValidator;
         _jwtManager = jwtManager;
     }
@@ -47,7 +48,7 @@ public class AuthController : ControllerBase
     [HttpGet("token/{token}/claims/{claimName}")]
     public ActionResult<TokenClaim> ReadClaim(string token, string claimName)
     {
-        TokenClaim? result = _jwtService.GetClaim(token, claimName);
+        TokenClaim? result = _jwtReader.GetClaim(token, claimName);
         if (result == null)
         {
             return NotFound();
@@ -58,7 +59,7 @@ public class AuthController : ControllerBase
     [HttpGet("token/{token}/claims")]
     public ActionResult<List<TokenClaim>> ReadClaims(string token)
     {
-        return Ok(_jwtService.GetTokenClaims(token));
+        return Ok(_jwtReader.GetTokenClaims(token));
     }
 
     [HttpGet("validate-access-token")]

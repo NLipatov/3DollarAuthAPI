@@ -1,18 +1,18 @@
-﻿using AuthAPI.Models;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using AuthAPI.Models;
 using AuthAPI.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
-namespace AuthAPI.Services.JWT
+namespace AuthAPI.Services.JWT.JwtReading
 {
-    public class JwtService : IJwtService
+    public class JwtReader : IJwtReader
     {
         private readonly IConfiguration _configuration;
 
-        public JwtService(IConfiguration configuration)
+        public JwtReader(IConfiguration configuration)
         {
             _configuration = configuration;
         }
