@@ -58,15 +58,22 @@ namespace AuthAPI.Services.UserArea.UserProvider
             };
         }
 
-        public async Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto, JwtIssueReason jwtIssueReason = JwtIssueReason.NotActualised)
+        public async Task SaveRefreshTokenAsync
+            (string username, 
+                RefreshTokenDto dto, 
+                JwtIssueReason jwtIssueReason = JwtIssueReason.NotActualised)
         {
             using(AuthContext context = new(_configuration))
             {
-                User user = context.Users.First(x => x.Username == username);
+                var user = context.Users.First(x => x.Username == username);
 
                 if (dto.RefreshToken is null)
                     throw new ArgumentException
                         ($"Given {nameof(dto.RefreshToken)} was null. Token pipeline is broken.");
+
+                if (dto.RefreshToken.Token == user.RefreshToken && jwtIssueReason == JwtIssueReason.RefreshToken)
+                    throw new ArgumentException($"Cannot update refresh token: " +
+                                                $"refresh token is the same that's stored in the database.");
                 
                 user.RefreshToken = dto.RefreshToken.Token;
                 user.RefreshTokenExpires = dto.RefreshToken.Expires;

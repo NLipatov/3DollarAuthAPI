@@ -108,24 +108,25 @@ public class AuthController : ControllerBase
     [HttpPost("refresh-tokens-explicitly")]
     public async Task<ActionResult<string>> RefreshTokensExplicitly(RefreshTokenDto dto)
     {
-        var users = await _userProvider.GetUsersAsync();
+        var users = await _userProvider
+            .GetUsersAsync();
 
-        User? refreshTokenOwner = users.FirstOrDefault(x => x.RefreshToken == dto.RefreshToken.Token);
-
-        if (refreshTokenOwner == null)
-        {
-            return BadRequest("Invalid refresh token");
-        }
-        else if (refreshTokenOwner.RefreshTokenExpires < DateTime.UtcNow)
-        {
-            return Unauthorized("Token expired");
-        }
+        var refreshTokenOwner = users.FirstOrDefault(x => x.RefreshToken == dto.RefreshToken.Token);
+        
+        if (refreshTokenOwner is null)
+            return BadRequest("Invalid refresh token.");
+        
+        if (DateTime.UtcNow > refreshTokenOwner.RefreshTokenExpires)
+            return Unauthorized("Refresh token expired.");
 
         var user = await _userProvider.GetUserByUsernameAsync(refreshTokenOwner.Username)
                    ??
                    throw new ArgumentException($"There's no user with such username: '{refreshTokenOwner.Username}'.");
 
-        JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
+        var jwtPair = _jwtManager.CreateJwtPair(user);
+        
+        //Updating a refresh token to store
+        dto.RefreshToken = jwtPair.RefreshToken;
         
         await _userProvider.SaveRefreshTokenAsync(refreshTokenOwner.Username, dto, JwtIssueReason.RefreshToken);
 
