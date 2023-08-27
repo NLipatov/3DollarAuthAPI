@@ -1,4 +1,5 @@
-﻿using AuthAPI.DB.Models;
+﻿using AuthAPI.DB.Enums;
+using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.Fido;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
@@ -21,6 +22,5 @@ public interface IUserProvider
     public Task UpdateCounter(byte[] credentialId, uint counter);
     public Task<List<User>> GetUsersAsync();
     public Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request, List<UserClaim>? claims);
-    public Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken);
-    public Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto);
+    public Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto, JwtIssueReason issueReason = JwtIssueReason.NotActualised);
 }

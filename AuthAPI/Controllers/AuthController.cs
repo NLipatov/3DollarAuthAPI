@@ -5,6 +5,7 @@ using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using AuthAPI.DB.Enums;
 using AuthAPI.DB.Models;
 using AuthAPI.Extensions;
 using AuthAPI.Services.JWT.JwtAuthentication;
@@ -91,21 +92,17 @@ public class AuthController : ControllerBase
     [HttpPost("get-token")]
     public async Task<ActionResult<string>> GetToken(UserAuthentication request)
     {
-        ValidationResult validationResult = await _credentialsValidator.ValidateCredentials(request);
+        var validationResult = await _credentialsValidator.ValidateCredentials(request);
 
         if (validationResult == ValidationResult.Success)
+            return await GenerateJwtPair(request);
+
+        return validationResult switch
         {
-            return await ProvideAccessAndRefreshTokensAsync(request);
-        }
-        else
-        {
-            return validationResult switch
-            {
-                ValidationResult.WrongPassword => (ActionResult<string>)BadRequest("Wrong Password"),
-                ValidationResult.WrongUsername => (ActionResult<string>)BadRequest("Wrong Username"),
-                _ => throw new Exception("Could not handle request properly because of occured unhadled exception"),
-            };
-        }
+            ValidationResult.WrongPassword => (ActionResult<string>)BadRequest("Wrong Password"),
+            ValidationResult.WrongUsername => (ActionResult<string>)BadRequest("Wrong Username"),
+            _ => throw new Exception("Could not handle request properly because of occured unhadled exception"),
+        };
     }
 
     [HttpPost("refresh-tokens-explicitly")]
@@ -129,8 +126,8 @@ public class AuthController : ControllerBase
                    throw new ArgumentException($"There's no user with such username: '{refreshTokenOwner.Username}'.");
 
         JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
-
-        await _userProvider.SaveRefreshTokenAsync(refreshTokenOwner.Username, dto);
+        
+        await _userProvider.SaveRefreshTokenAsync(refreshTokenOwner.Username, dto, JwtIssueReason.RefreshToken);
 
         return Ok(JsonSerializer.Serialize(jwtPair));
     }
@@ -140,7 +137,7 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    private async Task<string> ProvideAccessAndRefreshTokensAsync(UserAuthentication request)
+    private async Task<string> GenerateJwtPair(UserAuthentication request)
     {
         var user = await _userProvider.GetUserByUsernameAsync(request.Username)
                    ??
@@ -151,8 +148,9 @@ public class AuthController : ControllerBase
         await _userProvider.SaveRefreshTokenAsync(request.Username, new RefreshTokenDto
         {
             UserAgent = request.UserAgent,
-            UserAgentId = request.UserAgentId
-        });
+            UserAgentId = request.UserAgentId,
+            RefreshToken = jwtPair.RefreshToken
+        }, JwtIssueReason.Login);
         // await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
 
         return JsonSerializer.Serialize(jwtPair);

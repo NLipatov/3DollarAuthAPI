@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using AuthAPI.DB.DBContext;
+using AuthAPI.DB.Enums;
 using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.Fido;
 using AuthAPI.DB.Models.ModelExtensions;
@@ -57,43 +58,25 @@ namespace AuthAPI.Services.UserArea.UserProvider
             };
         }
 
-        public async Task SaveRefreshTokenAsync(string username, RefreshToken refreshToken)
-        {            
-            using(AuthContext context = new(_configuration))
-            {
-                User user = context.Users.First(x => x.Username == username);
-
-                user.RefreshToken = refreshToken.Token;
-                user.RefreshTokenExpires = refreshToken.Expires;
-                user.RefreshTokenCreated = refreshToken.Created;
-
-                await context.RefreshTokenHistories.AddAsync(new()
-                {
-                    User = user,
-                    UserAgent = string.Empty
-                });
-
-                await context.SaveChangesAsync();
-            }
-        }
-
-        public async Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto)
+        public async Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto, JwtIssueReason jwtIssueReason = JwtIssueReason.NotActualised)
         {
             using(AuthContext context = new(_configuration))
             {
                 User user = context.Users.First(x => x.Username == username);
 
-                if (dto.RefreshToken is not null)
-                {
-                    user.RefreshToken = dto.RefreshToken.Token;
-                    user.RefreshTokenExpires = dto.RefreshToken.Expires;
-                    user.RefreshTokenCreated = dto.RefreshToken.Created;
-                }
+                if (dto.RefreshToken is null)
+                    throw new ArgumentException
+                        ($"Given {nameof(dto.RefreshToken)} was null. Token pipeline is broken.");
+                
+                user.RefreshToken = dto.RefreshToken.Token;
+                user.RefreshTokenExpires = dto.RefreshToken.Expires;
+                user.RefreshTokenCreated = dto.RefreshToken.Created;
 
                 await context.RefreshTokenHistories.AddAsync(new()
                 {
                     User = user,
-                    UserAgent = dto.UserAgent
+                    UserAgent = dto.UserAgent,
+                    IssueReason = jwtIssueReason
                 });
 
                 await context.SaveChangesAsync();

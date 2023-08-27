@@ -1,4 +1,6 @@
 ﻿#nullable disable
+using AuthAPI.DB.Enums;
+
 namespace AuthAPI.DB.Models;
 
 public record RefreshTokenHistory
@@ -8,4 +10,5 @@ public record RefreshTokenHistory
     public string UserAgent { get; set; }
     public Guid UserAgentId { get; set; }
     public DateTime DateTime { get; set; } = DateTime.UtcNow;
+    public JwtIssueReason IssueReason { get; set; }
 }

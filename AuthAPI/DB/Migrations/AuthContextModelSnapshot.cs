@@ -98,6 +98,9 @@ namespace AuthAPI.Migrations
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("IssueReason")
+                        .HasColumnType("integer");
+
                     b.Property<string>("UserAgent")
                         .HasColumnType("text");
 
