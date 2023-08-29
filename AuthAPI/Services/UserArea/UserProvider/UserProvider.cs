@@ -83,6 +83,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
                 {
                     User = user,
                     UserAgent = dto.UserAgent,
+                    UserAgentId = dto.UserAgentId,
                     IssueReason = jwtIssueReason
                 });
 
