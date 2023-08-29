@@ -5,6 +5,8 @@ using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtAuthentication.Implementation;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.JWT.JwtReading.Implementation;
+using AuthAPI.Services.RefreshHistoryService;
+using AuthAPI.Services.RefreshHistoryService.Implementation;
 using AuthAPI.Services.UserArea.PublicKeyManager;
 using Microsoft.OpenApi.Models;
 
@@ -65,6 +67,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddTransient<IJwtReader, JwtReader>();
 builder.Services.AddTransient<IPublicKeyManager, PublicKeyManager>();
 builder.Services.AddTransient<IJwtAuthenticationService, JwtAuthenticationService>();
+builder.Services.AddTransient<IJwtRefreshHistoryService, JwtRefreshHistoryService>();
 
 // Use the in-memory implementation of IDistributedCache.
 builder.Services.AddMemoryCache();

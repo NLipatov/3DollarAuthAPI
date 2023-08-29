@@ -10,6 +10,7 @@ using AuthAPI.DB.Models;
 using AuthAPI.Extensions;
 using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
+using AuthAPI.Services.RefreshHistoryService;
 using AuthAPI.Services.UserArea.UserProvider;
 using LimpShared.Models.Authentication.Enums;
 
@@ -23,19 +24,22 @@ public class AuthController : ControllerBase
     private readonly IJwtReader _jwtReader;
     private readonly IUserCredentialsValidator _credentialsValidator;
     private readonly IJwtAuthenticationService _jwtManager;
+    private readonly IJwtRefreshHistoryService _jwtRefreshHistoryService;
 
     public AuthController
     (
         IUserProvider userProvider,
         IJwtReader jwtReader,
         IUserCredentialsValidator credentialsValidator,
-        IJwtAuthenticationService jwtManager
+        IJwtAuthenticationService jwtManager,
+        IJwtRefreshHistoryService jwtRefreshHistoryService
     )
     {
         _userProvider = userProvider;
         _jwtReader = jwtReader;
         _credentialsValidator = credentialsValidator;
         _jwtManager = jwtManager;
+        _jwtRefreshHistoryService = jwtRefreshHistoryService;
     }
 
     [HttpPost("register")]
@@ -61,6 +65,21 @@ public class AuthController : ControllerBase
     public ActionResult<List<TokenClaim>> ReadClaims(string token)
     {
         return Ok(_jwtReader.GetTokenClaims(token));
+    }
+
+    [HttpGet("refresh-history")]
+    public async Task<ActionResult<List<RefreshTokenHistory>>> GetUsersRefreshHistory
+        (string accessToken)
+    {
+        var isTokenValid = _jwtManager.ValidateAccessToken(accessToken);
+        var username = _jwtReader.GetUsernameFromAccessToken(accessToken);
+
+        if (!isTokenValid)
+            throw new ArgumentException($"Given access token is not valid.");
+
+        var history = await _jwtRefreshHistoryService.GetUserHistory(username);
+
+        return Ok(history);
     }
 
     [HttpGet("validate-access-token")]
