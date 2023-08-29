@@ -49,7 +49,8 @@ public class JwtAuthenticationService : IJwtAuthenticationService
         return true;
     }
     
-    private bool CustomLifetimeValidator(DateTime? notBefore, DateTime? expires, SecurityToken tokenToValidate, TokenValidationParameters param)
+    private bool CustomLifetimeValidator
+        (DateTime? notBefore, DateTime? expires, SecurityToken tokenToValidate, TokenValidationParameters param)
     {
         if (expires != null)
         {
@@ -86,7 +87,7 @@ public class JwtAuthenticationService : IJwtAuthenticationService
             Expires = DateTime.UtcNow.AddMinutes(5),
             Issuer = myIssuer,
             Audience = myAudience,
-            SigningCredentials = new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = new SigningCredentials(mySecurityKey, SecurityAlgorithms.HmacSha512Signature)
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);

@@ -6,7 +6,6 @@ using AuthAPI.Services.JWT.JwtAuthentication.Implementation;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.JWT.JwtReading.Implementation;
 using AuthAPI.Services.UserArea.PublicKeyManager;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,12 +65,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddTransient<IJwtReader, JwtReader>();
 builder.Services.AddTransient<IPublicKeyManager, PublicKeyManager>();
 builder.Services.AddTransient<IJwtAuthenticationService, JwtAuthenticationService>();
-
-builder.Services.AddRazorPages(opts =>
-{
-    // we don't care about anti-forgery in the demo
-    opts.Conventions.ConfigureFilter(new IgnoreAntiforgeryTokenAttribute());
-});
 
 // Use the in-memory implementation of IDistributedCache.
 builder.Services.AddMemoryCache();
