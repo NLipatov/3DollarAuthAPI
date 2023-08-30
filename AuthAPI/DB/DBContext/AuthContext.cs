@@ -19,7 +19,7 @@ namespace AuthAPI.DB.DBContext
         public DbSet<FidoUser> FidoUsers { get; set; }
         public DbSet<FidoCredential> StoredCredentials { get; set; }
         public DbSet<UserWebPushNotificationSubscription> WebPushNotificationSubscriptions { get; set; }
-        public DbSet<RefreshTokenEvent> RefreshTokenEvents { get; set; }
+        public DbSet<UserAccessRefreshEventLog> UserAccessRefreshEventLogs { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

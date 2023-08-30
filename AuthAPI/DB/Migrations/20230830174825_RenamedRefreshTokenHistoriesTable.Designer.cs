@@ -3,6 +3,7 @@ using System;
 using AuthAPI.DB.DBContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AuthAPI.Migrations
 {
     [DbContext(typeof(AuthContext))]
-    partial class AuthContextModelSnapshot : ModelSnapshot
+    [Migration("20230830174825_RenamedRefreshTokenHistoriesTable")]
+    partial class RenamedRefreshTokenHistoriesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,6 +92,34 @@ namespace AuthAPI.Migrations
                     b.ToTable("FidoUsers");
                 });
 
+            modelBuilder.Entity("AuthAPI.DB.Models.RefreshTokenEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("IssueReason")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserAgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokenEvents");
+                });
+
             modelBuilder.Entity("AuthAPI.DB.Models.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -119,35 +150,6 @@ namespace AuthAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("AuthAPI.DB.Models.UserAccessRefreshEventLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("IssueReason")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserAgent")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<Guid>("UserAgentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAccessRefreshEventLogs");
                 });
 
             modelBuilder.Entity("AuthAPI.DB.Models.UserClaim", b =>
@@ -231,7 +233,7 @@ namespace AuthAPI.Migrations
                     b.Navigation("Descriptor");
                 });
 
-            modelBuilder.Entity("AuthAPI.DB.Models.UserAccessRefreshEventLog", b =>
+            modelBuilder.Entity("AuthAPI.DB.Models.RefreshTokenEvent", b =>
                 {
                     b.HasOne("AuthAPI.DB.Models.User", "User")
                         .WithMany()

@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using AuthAPI.DB.DBContext;
-using AuthAPI.DB.Enums;
 using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.Fido;
 using AuthAPI.DB.Models.ModelExtensions;
@@ -79,7 +78,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
                 user.RefreshTokenExpires = dto.RefreshToken.Expires;
                 user.RefreshTokenCreated = dto.RefreshToken.Created;
 
-                await context.RefreshTokenEvents.AddAsync(new()
+                await context.UserAccessRefreshEventLogs.AddAsync(new()
                 {
                     User = user,
                     UserAgent = dto.UserAgent,

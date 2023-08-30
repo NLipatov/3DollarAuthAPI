@@ -1,6 +1,6 @@
-﻿using AuthAPI.DB.Enums;
-using AuthAPI.DB.Models;
+﻿using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.Fido;
+using LimpShared.Models.Authentication.Enums;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.Users;

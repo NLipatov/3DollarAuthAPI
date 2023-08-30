@@ -5,7 +5,6 @@ using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using AuthAPI.DB.Enums;
 using AuthAPI.DB.Models;
 using AuthAPI.Extensions;
 using AuthAPI.Services.JWT.JwtAuthentication;
@@ -68,7 +67,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("refresh-history")]
-    public async Task<ActionResult<List<RefreshTokenEvent>>> GetUsersRefreshHistory
+    public async Task<ActionResult<List<AccessRefreshEventLog>>> GetUsersRefreshHistory
         (string accessToken)
     {
         var isTokenValid = _jwtManager.ValidateAccessToken(accessToken);

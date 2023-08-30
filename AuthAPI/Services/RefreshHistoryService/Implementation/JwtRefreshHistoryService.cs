@@ -12,9 +12,9 @@ class JwtRefreshHistoryService : IJwtRefreshHistoryService
     {
         _context = context;
     }
-    public async Task<List<RefreshTokenEvent>> GetUserHistory(string username)
+    public async Task<List<UserAccessRefreshEventLog>> GetUserHistory(string username)
     {
-        var history = await _context.RefreshTokenEvents
+        var history = await _context.UserAccessRefreshEventLogs
             .Where(x => x.User.Username == username)
             .ToListAsync();
 
