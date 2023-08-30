@@ -4,5 +4,5 @@ namespace AuthAPI.Services.RefreshHistoryService;
 
 public interface IJwtRefreshHistoryService
 {
-    public Task<List<RefreshTokenHistory>> GetUserHistory(string username);
+    public Task<List<RefreshTokenEvent>> GetUserHistory(string username);
 }

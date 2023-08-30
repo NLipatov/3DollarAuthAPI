@@ -89,7 +89,7 @@ namespace AuthAPI.Migrations
                     b.ToTable("FidoUsers");
                 });
 
-            modelBuilder.Entity("AuthAPI.DB.Models.RefreshTokenHistory", b =>
+            modelBuilder.Entity("AuthAPI.DB.Models.RefreshTokenEvent", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -114,7 +114,7 @@ namespace AuthAPI.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokenHistories");
+                    b.ToTable("RefreshTokenEvents");
                 });
 
             modelBuilder.Entity("AuthAPI.DB.Models.User", b =>
@@ -230,7 +230,7 @@ namespace AuthAPI.Migrations
                     b.Navigation("Descriptor");
                 });
 
-            modelBuilder.Entity("AuthAPI.DB.Models.RefreshTokenHistory", b =>
+            modelBuilder.Entity("AuthAPI.DB.Models.RefreshTokenEvent", b =>
                 {
                     b.HasOne("AuthAPI.DB.Models.User", "User")
                         .WithMany()

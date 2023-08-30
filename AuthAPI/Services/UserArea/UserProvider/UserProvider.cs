@@ -79,7 +79,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
                 user.RefreshTokenExpires = dto.RefreshToken.Expires;
                 user.RefreshTokenCreated = dto.RefreshToken.Created;
 
-                await context.RefreshTokenHistories.AddAsync(new()
+                await context.RefreshTokenEvents.AddAsync(new()
                 {
                     User = user,
                     UserAgent = dto.UserAgent,

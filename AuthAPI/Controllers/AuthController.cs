@@ -68,7 +68,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("refresh-history")]
-    public async Task<ActionResult<List<RefreshTokenHistory>>> GetUsersRefreshHistory
+    public async Task<ActionResult<List<RefreshTokenEvent>>> GetUsersRefreshHistory
         (string accessToken)
     {
         var isTokenValid = _jwtManager.ValidateAccessToken(accessToken);

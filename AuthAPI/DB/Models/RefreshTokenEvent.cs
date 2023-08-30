@@ -3,7 +3,7 @@ using AuthAPI.DB.Enums;
 
 namespace AuthAPI.DB.Models;
 
-public record RefreshTokenHistory
+public record RefreshTokenEvent
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public User User { get; set; }
