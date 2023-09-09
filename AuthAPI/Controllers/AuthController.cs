@@ -126,13 +126,16 @@ public class AuthController : ControllerBase
     [HttpPost("refresh-tokens-explicitly")]
     public async Task<ActionResult<string>> RefreshTokensExplicitly(RefreshTokenDto dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.RefreshToken?.Token))
+            return BadRequest("Invalid refresh token: refresh token was an empty string.");
+        
         var users = await _userProvider
             .GetUsersAsync();
 
         var refreshTokenOwner = users.FirstOrDefault(x => x.RefreshToken == dto.RefreshToken.Token);
         
         if (refreshTokenOwner is null)
-            return BadRequest("Invalid refresh token.");
+            return BadRequest("Invalid refresh token: there's no user with specified refresh token.");
         
         if (DateTime.UtcNow > refreshTokenOwner.RefreshTokenExpires)
             return Unauthorized("Refresh token expired.");
