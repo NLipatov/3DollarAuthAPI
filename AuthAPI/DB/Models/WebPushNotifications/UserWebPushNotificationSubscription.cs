@@ -11,5 +11,6 @@
 
         public string? Auth { get; set; }
         public Guid? UserAgentId { get; set; }
+        public string? FirebaseRegistrationToken { get; set; }
     }
 }

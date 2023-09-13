@@ -184,6 +184,9 @@ namespace AuthAPI.Migrations
                     b.Property<string>("Auth")
                         .HasColumnType("text");
 
+                    b.Property<string>("FirebaseRegistrationToken")
+                        .HasColumnType("text");
+
                     b.Property<string>("P256dh")
                         .HasColumnType("text");
 

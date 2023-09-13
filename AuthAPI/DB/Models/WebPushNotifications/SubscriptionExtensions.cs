@@ -14,6 +14,7 @@ namespace AuthAPI.DB.Models.WebPushNotifications
                 P256dh = notificationSubscriptionDto.P256dh,
                 Url = notificationSubscriptionDto.Url,
                 UserAgentId = notificationSubscriptionDto.UserAgentId,
+                FirebaseRegistrationToken = notificationSubscriptionDto.FirebaseRegistrationToken
             };
         }
 
@@ -26,6 +27,7 @@ namespace AuthAPI.DB.Models.WebPushNotifications
                 Url = notificationSubscription.Url,
                 P256dh = notificationSubscription.P256dh,
                 UserAgentId = notificationSubscription.UserAgentId.HasValue ? notificationSubscription.UserAgentId.Value : Guid.Empty,
+                FirebaseRegistrationToken = notificationSubscription.FirebaseRegistrationToken
             };
         }
     }
