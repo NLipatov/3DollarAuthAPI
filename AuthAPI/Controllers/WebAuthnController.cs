@@ -1,5 +1,8 @@
-﻿using AuthAPI.DB.Models.Fido;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
+using AuthAPI.DB.Models.Fido;
 using AuthAPI.Services.UserArea.UserProvider;
+using AuthAPI.Services.WebAuthn;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using Microsoft.AspNetCore.Mvc;
@@ -199,7 +202,7 @@ public class WebAuthnController : Controller
             );
 
             // 4. Temporarily store options, session/in-memory cache/redis/db
-            HttpContext.Session.SetString("fido2.assertionOptions", options.ToJson());
+            OptionsStorage.usernameToOptions.TryAdd(username, options);
 
             // 5. Return options to client
             return Json(options);
@@ -211,20 +214,14 @@ public class WebAuthnController : Controller
         }
     }
 
-    [HttpPost("makeAssertion")]
-    public async Task<JsonResult> MakeAssertion([FromBody] AuthenticatorAssertionRawResponse clientResponse, CancellationToken cancellationToken)
+    [HttpPost("makeAssertion/{username}")]
+    public async Task<JsonResult> MakeAssertion([FromBody] AuthenticatorAssertionRawResponse clientResponse, string username, CancellationToken cancellationToken)
     {
-        string contextId = HttpContext.Session.Id;
-
         try
         {
             // 1. Get the assertion options we sent the client
-            var jsonOptions = HttpContext.Session.GetString("fido2.assertionOptions");
-            if (!string.IsNullOrEmpty(jsonOptions))
-            {
-                //Unauthorized
-            }
-            var options = AssertionOptions.FromJson(jsonOptions);
+            OptionsStorage.usernameToOptions.TryGetValue(username, out var options);
+            OptionsStorage.usernameToOptions.TryRemove(username, out _);
 
             // 2. Get registered credential from database
             //var creds = DemoStorage.GetCredentialById(clientResponse.Id) ?? throw new Exception("Unknown credentials");
@@ -245,7 +242,6 @@ public class WebAuthnController : Controller
             var res = await _fido2.MakeAssertionAsync(clientResponse, options, creds.PublicKey, storedCounter, callback, cancellationToken: cancellationToken);
 
             // 6. Store the updated counter
-            //DemoStorage.UpdateCounter(res.CredentialId, res.Counter);
             await _userProvider.UpdateCounter(res.CredentialId, res.Counter);
 
             // 7. return OK to client

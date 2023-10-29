@@ -81,7 +81,7 @@ builder.Services.AddSession(options =>
             // Strict SameSite mode is required because the default mode used
             // by ASP.NET Core 3 isn't understood by the Conformance Tool
             // and breaks conformance testing
-            options.Cookie.SameSite = SameSiteMode.Unspecified;
+            options.Cookie.SameSite = SameSiteMode.None;
         });
 
 builder.Services.AddFido2(options =>
@@ -104,9 +104,8 @@ var app = builder.Build();
 
 app.UseCors(myAllowSpecificOrigins);
 app.UseSession();
-
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
