@@ -5,6 +5,7 @@ using System.Text;
 using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.ModelExtensions;
 using LimpShared.Models.Authentication.Models;
+using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthAPI.Services.JWT.JwtAuthentication.Implementation;

@@ -12,6 +12,7 @@ using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.RefreshHistoryService;
 using AuthAPI.Services.UserArea.UserProvider;
 using LimpShared.Models.Authentication.Enums;
+using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 
 namespace AuthAPI.Controllers;
 

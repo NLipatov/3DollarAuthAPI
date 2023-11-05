@@ -1,6 +1,8 @@
 using AuthAPI.DB.DBContext;
 using AuthAPI.DB.Models;
+using AuthAPI.DB.Models.Fido;
 using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
+using LimpShared.Models.Authentication.Types;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.Services.UserArea.PublicKeyManager;
@@ -18,38 +20,75 @@ public class PublicKeyManager : IPublicKeyManager
     {
         using (AuthContext context = new(_configuration))
         {
-            User? targetUser = await context.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == publicKeyDto.Username);
-            if (targetUser == null)
-                throw new ArgumentException($"There is no user with specified username: '{publicKeyDto.Username}'");
-
-            UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
-            if (publicKeyClaim == null)
+            if (publicKeyDto.AuthenticationType is AuthenticationType.WebAuthn)
             {
-                targetUser.Claims?.Add(new UserClaim
+                FidoUser? targetUser =
+                    await context.FidoUsers.Include(x=>x.Claims).FirstOrDefaultAsync(x => x.Name == publicKeyDto.Username);
+                if (targetUser == null)
+                    throw new ArgumentException($"There is no user with specified username: '{publicKeyDto.Username}'.");
+                
+                UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
+                if (publicKeyClaim == null)
                 {
-                    Name = "PublicKey",
-                    Type = "RSA Public Key",
-                    Value = publicKeyDto.Key,
-                });
-            }
-            else
-            {
-                publicKeyClaim.Value = publicKeyDto.Key;
-            }
+                    targetUser.Claims?.Add(new UserClaim
+                    {
+                        Name = "PublicKey",
+                        Type = "RSA Public Key",
+                        Value = publicKeyDto.Key,
+                    });
+                }
+                else
+                {
+                    publicKeyClaim.Value = publicKeyDto.Key;
+                }
 
-            await context.SaveChangesAsync();
+                await context.SaveChangesAsync();
+            }
+            if (publicKeyDto.AuthenticationType is AuthenticationType.JwtToken)
+            {
+                User? targetUser = await context.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == publicKeyDto.Username);
+                if (targetUser == null)
+                    throw new ArgumentException($"There is no user with specified username: '{publicKeyDto.Username}'.");
+
+                UserClaim? publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
+                if (publicKeyClaim == null)
+                {
+                    targetUser.Claims?.Add(new UserClaim
+                    {
+                        Name = "PublicKey",
+                        Type = "RSA Public Key",
+                        Value = publicKeyDto.Key,
+                    });
+                }
+                else
+                {
+                    publicKeyClaim.Value = publicKeyDto.Key;
+                }
+
+                await context.SaveChangesAsync();
+            }
         }
     }
 
     public async Task<string?> GetRsaPublic(string username)
     {
+        #warning ToDo: split logic to 2 handlers - one for jwt users and another one for webAuthn.
         await using (AuthContext context = new(_configuration))
         {
+            UserClaim publicKeyClaim;
             var targetUser = await context.Users.Include(x => x.Claims).FirstOrDefaultAsync(x => x.Username == username);
             if (targetUser == null)
-                throw new ArgumentException($"There is no user with specified username: '{username}'");
+            {
+                var fidoUser = await context.FidoUsers.Include(x => x.Claims)
+                    .FirstOrDefaultAsync(x => x.Name == username);
+                if (fidoUser is not null)
+                {
+                    publicKeyClaim = fidoUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
+                    return publicKeyClaim?.Value;
+                }
+            }
 
-            var publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
+            publicKeyClaim = targetUser.Claims?.FirstOrDefault(x => x.Type == "RSA Public Key");
 
             return publicKeyClaim?.Value;
         }

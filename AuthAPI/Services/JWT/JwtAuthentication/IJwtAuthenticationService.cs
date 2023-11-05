@@ -1,5 +1,6 @@
 ﻿using AuthAPI.DB.Models;
 using LimpShared.Models.Authentication.Models;
+using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 
 namespace AuthAPI.Services.JWT.JwtAuthentication;
 

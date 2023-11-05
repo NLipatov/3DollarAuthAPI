@@ -17,9 +17,12 @@ public interface IUserProvider
     public Task<List<FidoCredential>> GetCredentialsByUserAsync(FidoUser user);
     public Task AddCredentialToUser(FidoUser user, FidoCredential credential);
     public Task<List<FidoUser>> GetUsersByCredentialIdAsync(byte[] credentialId, CancellationToken cancellationToken = default);
-    public Task<FidoCredential?> GetCredentialById(byte[] id);
+    public Task<FidoCredential?> GetCredentialById(byte[] credentialsId);
+    public Task<bool> ValidateCredentials(byte[] credentialId, uint counter);
     public Task<List<FidoCredential>> GetCredentialsByUserHandleAsync(byte[] userHandle, CancellationToken cancellationToken = default);
     public Task UpdateCounter(byte[] credentialId, uint counter);
+    public Task ResetCounter(byte[] credentialId);
+    public Task<string> GetUsernameByCredentialId(byte[] credentialId);
     public Task<List<User>> GetUsersAsync();
     public Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request, List<UserClaim>? claims);
     public Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto, JwtIssueReason issueReason = JwtIssueReason.NotActualised);

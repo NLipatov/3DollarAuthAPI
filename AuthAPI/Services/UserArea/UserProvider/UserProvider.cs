@@ -24,6 +24,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
             _cryptographyHelper = cryptographyHelper;
             _configuration = configuration;
         }
+
         /// <summary>
         /// Registers a new user
         /// </summary>
@@ -33,9 +34,11 @@ namespace AuthAPI.Services.UserArea.UserProvider
         /// <param name="claims"></param>
         /// <returns></returns>
         /// <exception cref="UserProviderException"></exception>
-        public async Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request, List<UserClaim>? claims)
+        public async Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request,
+            List<UserClaim>? claims)
         {
             #region Checking if user with this username already exist.
+
             User? existingUser = (await GetUsersAsync()).FirstOrDefault(x => x.Username == request.Username);
             if (existingUser != null)
                 return new UserAuthenticationOperationResult
@@ -44,6 +47,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
                     UserDto = null,
                     ResultType = OperationResultType.Fail
                 };
+
             #endregion
 
             User user = ModelFactory.BuildUser(_cryptographyHelper, request, claims);
@@ -58,11 +62,11 @@ namespace AuthAPI.Services.UserArea.UserProvider
         }
 
         public async Task SaveRefreshTokenAsync
-            (string username, 
-                RefreshTokenDto dto, 
-                JwtIssueReason jwtIssueReason = JwtIssueReason.NotActualised)
+        (string username,
+            RefreshTokenDto dto,
+            JwtIssueReason jwtIssueReason = JwtIssueReason.NotActualised)
         {
-            using(AuthContext context = new(_configuration))
+            using (AuthContext context = new(_configuration))
             {
                 var user = context.Users.First(x => x.Username == username);
 
@@ -73,7 +77,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
                 if (dto.RefreshToken.Token == user.RefreshToken && jwtIssueReason == JwtIssueReason.RefreshToken)
                     throw new ArgumentException($"Cannot update refresh token: " +
                                                 $"refresh token is the same that's stored in the database.");
-                
+
                 user.RefreshToken = dto.RefreshToken.Token;
                 user.RefreshTokenExpires = dto.RefreshToken.Expires;
                 user.RefreshTokenCreated = dto.RefreshToken.Created;
@@ -117,7 +121,6 @@ namespace AuthAPI.Services.UserArea.UserProvider
                 user.RefreshToken = rToken.Token;
 
                 await context.SaveChangesAsync();
-
             }
         }
 
@@ -150,8 +153,8 @@ namespace AuthAPI.Services.UserArea.UserProvider
         }
 
         public async Task<List<FidoUser>> GetUsersByCredentialIdAsync
-        (byte[] credentialId, 
-        CancellationToken cancellationToken = default)
+        (byte[] credentialId,
+            CancellationToken cancellationToken = default)
         {
             using (AuthContext context = new(_configuration))
             {
@@ -176,16 +179,27 @@ namespace AuthAPI.Services.UserArea.UserProvider
             }
         }
 
-        public async Task<FidoCredential?> GetCredentialById(byte[] id)
+        public async Task<FidoCredential?> GetCredentialById(byte[] credentialsId)
         {
             using (AuthContext context = new(_configuration))
             {
                 return await context.StoredCredentials
-                    .FirstOrDefaultAsync(c => c.Descriptor.Id.SequenceEqual(id));
+                    .FirstOrDefaultAsync(c => c.Descriptor.Id.SequenceEqual(credentialsId));
             }
         }
 
-        public async Task<List<FidoCredential>> GetCredentialsByUserHandleAsync(byte[] userHandle, CancellationToken cancellationToken = default)
+        public async Task<bool> ValidateCredentials(byte[] credentialId, uint counter)
+        {
+            using (AuthContext context = new(_configuration))
+            {
+                return await context.StoredCredentials
+                    .FirstOrDefaultAsync(c =>
+                        c.Descriptor.Id.SequenceEqual(credentialId) && c.SignatureCounter == counter) is not null;
+            }
+        }
+
+        public async Task<List<FidoCredential>> GetCredentialsByUserHandleAsync(byte[] userHandle,
+            CancellationToken cancellationToken = default)
         {
             using (AuthContext context = new(_configuration))
             {
@@ -194,13 +208,38 @@ namespace AuthAPI.Services.UserArea.UserProvider
             }
         }
 
-        public async Task UpdateCounter(byte[] credentialId, uint counter)
+        public async Task ResetCounter(byte[] credentialId)
         {
             using (AuthContext context = new(_configuration))
             {
                 var cred = await context.StoredCredentials
                     .FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId));
+
+                cred.SignatureCounter = 0;
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task UpdateCounter(byte[] credentialId, uint counter)
+        {
+            using (AuthContext context = new(_configuration))
+            {
+                var cred = await context.StoredCredentials
+                    .FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId) && c.SignatureCounter == counter - 1);
+
                 cred.SignatureCounter = counter;
+                await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<string> GetUsernameByCredentialId(byte[] credentialId)
+        {
+            using (AuthContext context = new(_configuration))
+            {
+                var cred = await context.StoredCredentials
+                    .FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId));
+
+                return Encoding.UTF8.GetString(cred.UserId);
             }
         }
 
@@ -232,7 +271,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
 
         public async Task<IsUserExistDto> IsUserExist(string username)
         {
-            using(AuthContext context = new(_configuration))
+            using (AuthContext context = new(_configuration))
             {
                 string? targetUserUsername = await context.Users
                     .Select(x => x.Username)

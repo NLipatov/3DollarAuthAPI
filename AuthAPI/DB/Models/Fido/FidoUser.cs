@@ -26,5 +26,10 @@ namespace AuthAPI.DB.Models.Fido
         /// </summary>
         [JsonPropertyName("displayName")]
         public string DisplayName { get; set; }
+        
+        /// <summary>
+        /// Additional related to user information as RSA Pulic keys
+        /// </summary>
+        public List<UserClaim>? Claims { get; set; } = new();
     }
 }
