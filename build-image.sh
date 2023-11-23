@@ -1,4 +1,4 @@
-if [ $# -ne 1 ]; then
+if [ $# -ne 2 ]; then
     echo "Usage: $0 <folder that contains appsettings.json and FCMConfiguration.json> $1 <folder that contains dev certificate>"
     exit 1
 fi
