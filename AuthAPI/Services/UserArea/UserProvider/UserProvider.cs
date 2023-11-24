@@ -188,6 +188,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
             }
         }
 
+        // Checks that db has a record for given credentialId and counter value.
         public async Task<bool> ValidateCredentials(byte[] credentialId, uint counter)
         {
             using (AuthContext context = new(_configuration))
@@ -208,6 +209,9 @@ namespace AuthAPI.Services.UserArea.UserProvider
             }
         }
 
+        // Counter is a part of credential validation system.
+        // Each credential validation increases counter by one.
+        // Relogin should reset the counter.
         public async Task ResetCounter(byte[] credentialId)
         {
             using (AuthContext context = new(_configuration))

@@ -1,8 +1,11 @@
-﻿namespace AuthAPI.DB.Models.WebPushNotifications
+﻿using AuthAPI.DB.Models.Fido;
+
+namespace AuthAPI.DB.Models.WebPushNotifications
 {
     public class UserWebPushNotificationSubscription
     {
         public User? User { get; set; }
+        public FidoUser? FidoUser { get; set; }
         public Guid Id { get; set; } = Guid.NewGuid();
 
         public string? Url { get; set; }

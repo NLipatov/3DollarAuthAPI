@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using AuthAPI.DB.Models.WebPushNotifications;
 using Fido2NetLib;
 
 namespace AuthAPI.DB.Models.Fido
@@ -31,5 +32,6 @@ namespace AuthAPI.DB.Models.Fido
         /// Additional related to user information as RSA Pulic keys
         /// </summary>
         public List<UserClaim>? Claims { get; set; } = new();
+        public List<UserWebPushNotificationSubscription> UserWebPushNotificationSubscriptions { get; set; } = new();
     }
 }

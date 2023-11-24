@@ -1,4 +1,5 @@
-﻿using LimpShared.Models.WebPushNotification;
+﻿using AuthAPI.DB.Models.Fido;
+using LimpShared.Models.WebPushNotification;
 
 namespace AuthAPI.DB.Models.WebPushNotifications
 {
@@ -9,6 +10,20 @@ namespace AuthAPI.DB.Models.WebPushNotifications
             return new UserWebPushNotificationSubscription
             {
                 User = user,
+                Auth = notificationSubscriptionDto.Auth,
+                Id = notificationSubscriptionDto.Id,
+                P256dh = notificationSubscriptionDto.P256dh,
+                Url = notificationSubscriptionDto.Url,
+                UserAgentId = notificationSubscriptionDto.UserAgentId,
+                FirebaseRegistrationToken = notificationSubscriptionDto.FirebaseRegistrationToken
+            };
+        }
+        
+        public static UserWebPushNotificationSubscription FromDto(this NotificationSubscriptionDto notificationSubscriptionDto, FidoUser fidoUser)
+        {
+            return new UserWebPushNotificationSubscription
+            {
+                FidoUser = fidoUser,
                 Auth = notificationSubscriptionDto.Auth,
                 Id = notificationSubscriptionDto.Id,
                 P256dh = notificationSubscriptionDto.P256dh,
