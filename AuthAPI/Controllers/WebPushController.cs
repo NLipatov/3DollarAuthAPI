@@ -18,9 +18,9 @@ namespace AuthAPI.Controllers
         private readonly AuthContext _authContext;
         private readonly IJwtReader _jwtReader;
         private readonly IUserProvider _userProvider;
-        private readonly IJwtAuthenticationService _jwtManager;
+        private readonly IJwtAuthenticationManager _jwtManager;
 
-        public WebPushController(AuthContext authContext, IJwtReader jwtReader, IUserProvider userProvider, IJwtAuthenticationService jwtManager)
+        public WebPushController(AuthContext authContext, IJwtReader jwtReader, IUserProvider userProvider, IJwtAuthenticationManager jwtManager)
         {
             _authContext = authContext;
             _jwtReader = jwtReader;
@@ -75,7 +75,7 @@ namespace AuthAPI.Controllers
                 
                 var credentialIdBytes = Convert.FromBase64String(Uri.UnescapeDataString(credentialId));
                 
-                bool isCredentialsValid = await _userProvider.ValidateCredentials(credentialIdBytes, webAuthnPair?.Counter + 1  ?? 0);
+                bool isCredentialsValid = await _userProvider.ValidateCredentials(credentialIdBytes, webAuthnPair?.Counter  ?? 0);
 
                 if (!isCredentialsValid)
                     throw new ArgumentException("Cannot delete web push subscriptions: given access token is not valid.");
@@ -143,7 +143,7 @@ namespace AuthAPI.Controllers
                 var webAuthnPair = subscriptionDto.WebAuthnPair;
                 var credentialId = webAuthnPair?.CredentialId ?? string.Empty;
                 var credentialIdBytes = Convert.FromBase64String(Uri.UnescapeDataString(credentialId));
-                isCredentialsValid = await _userProvider.ValidateCredentials(credentialIdBytes, webAuthnPair?.Counter + 1 ?? 0);
+                isCredentialsValid = await _userProvider.ValidateCredentials(credentialIdBytes, webAuthnPair?.Counter ?? 0);
                 
                 username = await _userProvider.GetUsernameByCredentialId(credentialIdBytes);
             }

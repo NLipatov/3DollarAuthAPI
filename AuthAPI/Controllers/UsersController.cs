@@ -21,13 +21,13 @@ namespace AuthAPI.Controllers
         private readonly IUserProvider _userProvider;
         private readonly IJwtReader _jwtReader;
         private readonly IPublicKeyManager _publicKeyManager;
-        private readonly IJwtAuthenticationService _jwtManager;
+        private readonly IJwtAuthenticationManager _jwtManager;
 
         public UsersController
             (IUserProvider userProvider,
                 IJwtReader jwtReader,
                 IPublicKeyManager publicKeyManager,
-                IJwtAuthenticationService jwtManager)
+                IJwtAuthenticationManager jwtManager)
         {
             _userProvider = userProvider;
             _jwtReader = jwtReader;

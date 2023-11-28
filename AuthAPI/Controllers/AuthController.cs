@@ -1,38 +1,42 @@
-﻿using AuthAPI.Extensions.ResponseSerializeExtension;
-using AuthAPI.Services.JWT.Models;
+﻿using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-using AuthAPI.DB.Models;
 using AuthAPI.Extensions;
+using AuthAPI.Services.AuthenticationManager;
 using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.RefreshHistoryService;
 using AuthAPI.Services.UserArea.UserProvider;
 using LimpShared.Models.Authentication.Enums;
+using LimpShared.Models.Authentication.Models.Credentials.CredentialsDTO;
 using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 
 namespace AuthAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController : ControllerBase
+public class AuthController : Controller
 {
     private readonly IUserProvider _userProvider;
     private readonly IJwtReader _jwtReader;
     private readonly IUserCredentialsValidator _credentialsValidator;
-    private readonly IJwtAuthenticationService _jwtManager;
+    private readonly IJwtAuthenticationManager _jwtManager;
     private readonly IJwtRefreshHistoryService _jwtRefreshHistoryService;
+    private readonly IAuthenticationManager<JwtPair> _jwtAuthenticationManager;
+    private readonly IAuthenticationManager<WebAuthnPair> _webAuthnAuthenticationManager;
 
     public AuthController
     (
         IUserProvider userProvider,
         IJwtReader jwtReader,
         IUserCredentialsValidator credentialsValidator,
-        IJwtAuthenticationService jwtManager,
-        IJwtRefreshHistoryService jwtRefreshHistoryService
+        IJwtAuthenticationManager jwtManager,
+        IJwtRefreshHistoryService jwtRefreshHistoryService,
+        IAuthenticationManager<JwtPair> jwtAuthenticationManager,
+        IAuthenticationManager<WebAuthnPair> webAuthnAuthenticationManager
     )
     {
         _userProvider = userProvider;
@@ -40,6 +44,8 @@ public class AuthController : ControllerBase
         _credentialsValidator = credentialsValidator;
         _jwtManager = jwtManager;
         _jwtRefreshHistoryService = jwtRefreshHistoryService;
+        _jwtAuthenticationManager = jwtAuthenticationManager;
+        _webAuthnAuthenticationManager = webAuthnAuthenticationManager;
     }
 
     [HttpPost("register")]
@@ -82,30 +88,54 @@ public class AuthController : ControllerBase
         return Ok(history);
     }
 
-    [HttpGet("validate-access-token")]
-    public ActionResult<string> ValidateAccessToken(string accesstoken)
+    [HttpPost("refresh")]
+    public async Task<AuthResult> Refresh(CredentialsDTO dto)
     {
-        string result;
-        if (_jwtManager.ValidateAccessToken(accesstoken))
+        AuthResult? authResult = null;
+        if (!string.IsNullOrWhiteSpace(dto.JwtPair?.AccessToken))
         {
-            result = new TokenRelatedOperationResult
+            var refreshedCredentials = await _jwtAuthenticationManager.RefreshCredentials(dto.JwtPair);
+            authResult = new()
             {
-                ResultType = OperationResultType.Success,
-                Message = "Token is valid",
-            }.AsJson();
-
+                Result = refreshedCredentials is not null
+                    ? AuthResultType.Success
+                    : AuthResultType.Fail,
+                JwtPair = refreshedCredentials
+            };
         }
-        else
+        else if (!string.IsNullOrWhiteSpace(dto.WebAuthnPair?.CredentialId))
         {
-            result = new TokenRelatedOperationResult
+            var refreshedCredentials = await _webAuthnAuthenticationManager.RefreshCredentials(dto.WebAuthnPair);
+            authResult = new()
             {
-                ResultType = OperationResultType.Fail,
-                FailureType = FailureType.InvalidToken,
-                Message = "Token is not valid",
-            }.AsJson();
+                Result = refreshedCredentials is not null
+                    ? AuthResultType.Success
+                    : AuthResultType.Fail,
+                CredentialId = refreshedCredentials?.CredentialId ?? string.Empty
+            };
         }
 
-        return Ok(result);
+        return authResult ?? new AuthResult {Result = AuthResultType.Fail};
+    }
+
+    [HttpPost("validate")]
+    public async Task<AuthResult> Validate(CredentialsDTO dto)
+    {
+        bool isTokenValid = false;
+        if (!string.IsNullOrWhiteSpace(dto.JwtPair?.AccessToken))
+        {
+            isTokenValid = await _jwtAuthenticationManager.ValidateCredentials(dto.JwtPair);
+        }
+        else if (!string.IsNullOrWhiteSpace(dto.WebAuthnPair?.CredentialId))
+        {
+            isTokenValid = await _webAuthnAuthenticationManager.ValidateCredentials(dto.WebAuthnPair);
+        }
+
+        return new()
+        {
+            Result = isTokenValid ? AuthResultType.Success : AuthResultType.Fail,
+            Message = isTokenValid ? "Token is valid." : "Token is not valid."
+        };
     }
 
     [HttpPost("get-token")]

@@ -4,19 +4,23 @@ using System.Security.Cryptography;
 using System.Text;
 using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.ModelExtensions;
+using AuthAPI.Services.JWT.JwtAuthentication;
+using AuthAPI.Services.UserArea.UserProvider;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthAPI.Services.JWT.JwtAuthentication.Implementation;
+namespace AuthAPI.Services.AuthenticationManager.Implementations.Jwt.Implementation;
 
-public class JwtAuthenticationService : IJwtAuthenticationService
+public class JwtAuthenticationManager : IJwtAuthenticationManager, IAuthenticationManager<JwtPair>
 {
     private readonly IConfiguration _configuration;
+    private readonly IUserProvider _userProvider;
 
-    public JwtAuthenticationService(IConfiguration configuration)
+    public JwtAuthenticationManager(IConfiguration configuration, IUserProvider userProvider)
     {
         _configuration = configuration;
+        _userProvider = userProvider;
     }
     
     public bool ValidateAccessToken(string accessToken)
@@ -103,5 +107,37 @@ public class JwtAuthenticationService : IJwtAuthenticationService
             Expires = DateTime.UtcNow.AddDays(7),
             Created = DateTime.UtcNow
         };
+    }
+
+    public async Task<bool> ValidateCredentials(JwtPair credentials)
+    {
+        return ValidateAccessToken(credentials.AccessToken);
+    }
+
+    public async Task<JwtPair?> RefreshCredentials(JwtPair credentials)
+    {
+        if (string.IsNullOrWhiteSpace(credentials.RefreshToken.Token))
+            throw new ArgumentException($"Exception:{nameof(JwtAuthenticationManager)}.{nameof(RefreshCredentials)}:" +
+                                        $"Invalid refresh token");
+        
+        var user = await _userProvider.GetUserByRefreshTokenAsync(credentials.RefreshToken.Token);
+        if (user is null)
+            throw new ArgumentException($"Exception:{nameof(JwtAuthenticationManager)}.{nameof(RefreshCredentials)}:" +
+                                        $"Invalid refresh token.");
+
+        var jwtPair = CreateJwtPair(user);
+        user.RefreshToken = jwtPair.RefreshToken.Token;
+
+        try
+        {
+            await _userProvider.SaveRefreshTokenAsync(jwtPair, user);
+
+            return jwtPair;
+        }
+        catch (Exception e)
+        {
+            throw new ArgumentException($"Exception:{nameof(JwtAuthenticationManager)}.{nameof(RefreshCredentials)}:" +
+                                        $"Could not update a {nameof(JwtPair)}: {e.Message}.");
+        }
     }
 }

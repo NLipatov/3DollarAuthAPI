@@ -1,13 +1,16 @@
 using AspNetCore.Proxy;
 using AuthAPI.DB.DBContext;
 using AuthAPI.Extensions;
+using AuthAPI.Services.AuthenticationManager;
+using AuthAPI.Services.AuthenticationManager.Implementations.Jwt.Implementation;
+using AuthAPI.Services.AuthenticationManager.Implementations.WebAuthn.Implementation;
 using AuthAPI.Services.JWT.JwtAuthentication;
-using AuthAPI.Services.JWT.JwtAuthentication.Implementation;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.JWT.JwtReading.Implementation;
 using AuthAPI.Services.RefreshHistoryService;
 using AuthAPI.Services.RefreshHistoryService.Implementation;
 using AuthAPI.Services.UserArea.PublicKeyManager;
+using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,8 +69,10 @@ builder.Services.UseUserCredentialsValidator();
 builder.Services.AddAuthorization();
 builder.Services.AddTransient<IJwtReader, JwtReader>();
 builder.Services.AddTransient<IPublicKeyManager, PublicKeyManager>();
-builder.Services.AddTransient<IJwtAuthenticationService, JwtAuthenticationService>();
+builder.Services.AddTransient<IJwtAuthenticationManager, JwtAuthenticationManager>();
 builder.Services.AddTransient<IJwtRefreshHistoryService, JwtRefreshHistoryService>();
+builder.Services.AddTransient<IAuthenticationManager<JwtPair>, JwtAuthenticationManager>();
+builder.Services.AddTransient<IAuthenticationManager<WebAuthnPair>, WebAuthnAuthenticationManager>();
 
 // Use the in-memory implementation of IDistributedCache.
 builder.Services.AddMemoryCache();

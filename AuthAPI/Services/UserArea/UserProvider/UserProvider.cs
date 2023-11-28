@@ -8,6 +8,7 @@ using AuthAPI.Services.ModelBuilder;
 using AuthAPI.Services.UserArea.UserProvider.ServiceExceptions;
 using LimpShared.Models.Authentication.Enums;
 using LimpShared.Models.Authentication.Models;
+using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.Users;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +61,20 @@ namespace AuthAPI.Services.UserArea.UserProvider
                 UserDto = user.ToDto(),
             };
         }
+        
+        public async Task SaveRefreshTokenAsync(JwtPair jwtPair, User user)
+        {
+            using (AuthContext context = new(_configuration))
+            {
+                var targetUser = context.Users.First(x => x.Id == user.Id);
+
+                targetUser.RefreshToken = jwtPair.RefreshToken.Token;
+                targetUser.RefreshTokenCreated = jwtPair.RefreshToken.Created;
+                targetUser.RefreshTokenExpires = jwtPair.RefreshToken.Expires;
+
+                await context.SaveChangesAsync();
+            }
+        }
 
         public async Task SaveRefreshTokenAsync
         (string username,
@@ -101,6 +116,14 @@ namespace AuthAPI.Services.UserArea.UserProvider
                 return await context.Users
                     .Include(x => x.Claims)
                     .FirstOrDefaultAsync(x => x.Username == username);
+            }
+        }
+
+        public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
+        {
+            using (AuthContext context = new(_configuration))
+            {
+                return await context.Users.FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
             }
         }
 

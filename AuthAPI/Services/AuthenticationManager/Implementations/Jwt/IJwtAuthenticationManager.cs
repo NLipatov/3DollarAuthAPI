@@ -1,4 +1,5 @@
 ﻿using AuthAPI.DB.Models;
+using AuthAPI.Services.AuthenticationManager;
 using LimpShared.Models.Authentication.Models;
 using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 
@@ -7,7 +8,7 @@ namespace AuthAPI.Services.JWT.JwtAuthentication;
 /// <summary>
 /// Creates and validates JWT-tokens
 /// </summary>
-public interface IJwtAuthenticationService
+public interface IJwtAuthenticationManager
 {
     /// <summary>
     /// Validates given access token
