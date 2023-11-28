@@ -118,6 +118,12 @@ public class AuthController : Controller
         return authResult ?? new AuthResult {Result = AuthResultType.Fail};
     }
 
+    [HttpPost("username")]
+    public async Task<AuthResult> GetUsernameByCredentials(CredentialsDTO credentialsDto)
+    {
+        return await _userProvider.GetUsernameByCredentials(credentialsDto);
+    }
+
     [HttpPost("validate")]
     public async Task<AuthResult> Validate(CredentialsDTO dto)
     {

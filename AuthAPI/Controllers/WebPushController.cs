@@ -20,7 +20,11 @@ namespace AuthAPI.Controllers
         private readonly IUserProvider _userProvider;
         private readonly IJwtAuthenticationManager _jwtManager;
 
-        public WebPushController(AuthContext authContext, IJwtReader jwtReader, IUserProvider userProvider, IJwtAuthenticationManager jwtManager)
+        public WebPushController
+            (AuthContext authContext, 
+                IJwtReader jwtReader, 
+                IUserProvider userProvider, 
+                IJwtAuthenticationManager jwtManager)
         {
             _authContext = authContext;
             _jwtReader = jwtReader;
@@ -118,7 +122,7 @@ namespace AuthAPI.Controllers
         }
 
         [HttpPut("notifications/subscribe")]
-        public async Task Subscribe(NotificationSubscriptionDto subscriptionDto)
+        public async Task AddSubscription(NotificationSubscriptionDto subscriptionDto)
         {
             if (subscriptionDto.WebAuthnPair is null && subscriptionDto.JwtPair is null)
                 throw new ArgumentException
@@ -150,7 +154,7 @@ namespace AuthAPI.Controllers
 
             if (!isCredentialsValid)
                 throw new ArgumentException
-                    ($"Exception:{nameof(WebPushController)}.{nameof(Subscribe)}:Credentials are not valid.");
+                    ($"Exception:{nameof(WebPushController)}.{nameof(AddSubscription)}:Credentials are not valid.");
 
             User? user = await _authContext.Users
                 .Include(x => x.UserWebPushNotificationSubscriptions)

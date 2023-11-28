@@ -8,6 +8,7 @@ using AuthAPI.Services.ModelBuilder;
 using AuthAPI.Services.UserArea.UserProvider.ServiceExceptions;
 using LimpShared.Models.Authentication.Enums;
 using LimpShared.Models.Authentication.Models;
+using LimpShared.Models.Authentication.Models.Credentials.CredentialsDTO;
 using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.Users;
@@ -73,6 +74,47 @@ namespace AuthAPI.Services.UserArea.UserProvider
                 targetUser.RefreshTokenExpires = jwtPair.RefreshToken.Expires;
 
                 await context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<AuthResult> GetUsernameByCredentials(CredentialsDTO credentialsDto)
+        {
+            using (AuthContext context = new(_configuration))
+            {
+                string username = string.Empty;
+                if (credentialsDto.JwtPair is not null)
+                {
+                    var request = await context.Users
+                        .Where(x => x.RefreshToken == credentialsDto.JwtPair.RefreshToken.Token)
+                        .Select(x => new
+                        {
+                            Username = x.Username
+                        })
+                        .FirstOrDefaultAsync();
+
+                    username = request?.Username ?? string.Empty;
+                }
+
+                if (credentialsDto.WebAuthnPair is not null)
+                {
+                    var credentialIdBytes = Convert.FromBase64String(credentialsDto.WebAuthnPair.CredentialId);
+                    var request = await context.StoredCredentials
+                        .Where(c => c.Descriptor.Id.SequenceEqual(credentialIdBytes))
+                        .Select(x => new
+                        {
+                            Username = x.UserId,
+                            
+                        })
+                        .FirstOrDefaultAsync();
+                    
+                    username = Encoding.UTF8.GetString(request?.Username ?? Array.Empty<byte>());
+                }
+
+                return new AuthResult
+                {
+                    Result = string.IsNullOrWhiteSpace(username) ? AuthResultType.Fail : AuthResultType.Success,
+                    Message = username
+                };
             }
         }
 

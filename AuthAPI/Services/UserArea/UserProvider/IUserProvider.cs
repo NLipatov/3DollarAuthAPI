@@ -2,6 +2,7 @@
 using AuthAPI.DB.Models.Fido;
 using LimpShared.Models.Authentication.Enums;
 using LimpShared.Models.Authentication.Models;
+using LimpShared.Models.Authentication.Models.Credentials.CredentialsDTO;
 using LimpShared.Models.Authentication.Models.Credentials.Implementation;
 using LimpShared.Models.Authentication.Models.UserAuthentication;
 using LimpShared.Models.Users;
@@ -29,4 +30,5 @@ public interface IUserProvider
     public Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request, List<UserClaim>? claims);
     public Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto, JwtIssueReason issueReason = JwtIssueReason.NotActualised);
     public Task SaveRefreshTokenAsync(JwtPair jwtPair, User user);
+    public Task<AuthResult> GetUsernameByCredentials(CredentialsDTO credentialsDto);
 }
