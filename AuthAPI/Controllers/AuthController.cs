@@ -92,30 +92,37 @@ public class AuthController : Controller
     public async Task<AuthResult> Refresh(CredentialsDTO dto)
     {
         AuthResult? authResult = null;
-        if (!string.IsNullOrWhiteSpace(dto.JwtPair?.AccessToken))
+        try
         {
-            var refreshedCredentials = await _jwtAuthenticationManager.RefreshCredentials(dto.JwtPair);
-            authResult = new()
+            if (!string.IsNullOrWhiteSpace(dto.JwtPair?.AccessToken))
             {
-                Result = refreshedCredentials is not null
-                    ? AuthResultType.Success
-                    : AuthResultType.Fail,
-                JwtPair = refreshedCredentials
-            };
+                var refreshedCredentials = await _jwtAuthenticationManager.RefreshCredentials(dto.JwtPair);
+                authResult = new()
+                {
+                    Result = refreshedCredentials is not null
+                        ? AuthResultType.Success
+                        : AuthResultType.Fail,
+                    JwtPair = refreshedCredentials
+                };
+            }
+            else if (!string.IsNullOrWhiteSpace(dto.WebAuthnPair?.CredentialId))
+            {
+                var refreshedCredentials = await _webAuthnAuthenticationManager.RefreshCredentials(dto.WebAuthnPair);
+                authResult = new()
+                {
+                    Result = refreshedCredentials is not null
+                        ? AuthResultType.Success
+                        : AuthResultType.Fail,
+                    CredentialId = refreshedCredentials?.CredentialId ?? string.Empty
+                };
+            }
         }
-        else if (!string.IsNullOrWhiteSpace(dto.WebAuthnPair?.CredentialId))
+        catch (Exception e)
         {
-            var refreshedCredentials = await _webAuthnAuthenticationManager.RefreshCredentials(dto.WebAuthnPair);
-            authResult = new()
-            {
-                Result = refreshedCredentials is not null
-                    ? AuthResultType.Success
-                    : AuthResultType.Fail,
-                CredentialId = refreshedCredentials?.CredentialId ?? string.Empty
-            };
+            return authResult ?? new AuthResult {Result = AuthResultType.Fail, Message = e.Message };
         }
-
-        return authResult ?? new AuthResult {Result = AuthResultType.Fail};
+        
+        return authResult ?? new AuthResult {Result = AuthResultType.Fail };
     }
 
     [HttpPost("username")]
