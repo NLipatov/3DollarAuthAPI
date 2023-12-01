@@ -165,7 +165,9 @@ namespace AuthAPI.Services.UserArea.UserProvider
         {
             using (AuthContext context = new(_configuration))
             {
-                return await context.Users.FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
+                return await context.Users
+                    .Include(x=>x.Claims)
+                    .FirstOrDefaultAsync(x => x.RefreshToken == refreshToken);
             }
         }
 
