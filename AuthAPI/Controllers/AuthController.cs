@@ -167,37 +167,6 @@ public class AuthController : Controller
         };
     }
 
-    [HttpPost("refresh-tokens-explicitly")]
-    public async Task<ActionResult<string>> RefreshTokensExplicitly(RefreshTokenDto dto)
-    {
-        if (string.IsNullOrWhiteSpace(dto.RefreshToken?.Token))
-            return BadRequest("Invalid refresh token: refresh token was an empty string.");
-        
-        var users = await _userProvider
-            .GetUsersAsync();
-
-        var refreshTokenOwner = users.FirstOrDefault(x => x.RefreshToken == dto.RefreshToken.Token);
-        
-        if (refreshTokenOwner is null)
-            return BadRequest("Invalid refresh token: there's no user with specified refresh token.");
-        
-        if (DateTime.UtcNow > refreshTokenOwner.RefreshTokenExpires)
-            return Unauthorized("Refresh token expired.");
-
-        var user = await _userProvider.GetUserByUsernameAsync(refreshTokenOwner.Username)
-                   ??
-                   throw new ArgumentException($"There's no user with such username: '{refreshTokenOwner.Username}'.");
-
-        var jwtPair = _jwtManager.CreateJwtPair(user);
-        
-        //Updating a refresh token to store
-        dto.RefreshToken = jwtPair.RefreshToken;
-        
-        await _userProvider.SaveRefreshTokenAsync(refreshTokenOwner.Username, dto, JwtIssueReason.RefreshToken);
-
-        return Ok(JsonSerializer.Serialize(jwtPair));
-    }
-
     /// <summary>
     /// Provides both access and refresh token in response payload
     /// </summary>
