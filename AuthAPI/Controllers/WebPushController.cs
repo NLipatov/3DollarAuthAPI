@@ -48,10 +48,6 @@ namespace AuthAPI.Controllers
                     ($"Cannot delete web push subscriptions: " +
                      $"Given access token is not a well formed JWT access token.");
 
-                bool accessTokenIsValid = _jwtManager.ValidateAccessToken(accessToken);
-                if (!accessTokenIsValid)
-                    throw new ArgumentException("Cannot delete web push subscriptions: given access token is not valid.");
-
                 string username = _jwtReader.GetUsernameFromAccessToken(accessToken);
 
                 User? user = await _authContext.Users
@@ -79,11 +75,6 @@ namespace AuthAPI.Controllers
                 
                 var credentialIdBytes = Convert.FromBase64String(Uri.UnescapeDataString(credentialId));
                 
-                bool isCredentialsValid = await _userProvider.ValidateCredentials(credentialIdBytes, webAuthnPair?.Counter  ?? 0);
-
-                if (!isCredentialsValid)
-                    throw new ArgumentException("Cannot delete web push subscriptions: given access token is not valid.");
-
                 string username = await _userProvider.GetUsernameByCredentialId(credentialIdBytes);
 
                 FidoUser? fidoUser = await _authContext.FidoUsers
@@ -130,16 +121,12 @@ namespace AuthAPI.Controllers
                     $"{nameof(subscriptionDto.JwtPair)} and {nameof(subscriptionDto.WebAuthnPair)} are both nulls.");
 
             #warning ToDo: implement a validator for WebAuthN
-            bool isCredentialsValid = false;
             string username = string.Empty;
             if (subscriptionDto.JwtPair is not null)
             {
                 var jwtPair = subscriptionDto.JwtPair;
                 var accessToken = jwtPair?.AccessToken ?? string.Empty;
              
-                isCredentialsValid =
-                    _jwtManager.ValidateAccessToken(accessToken);
-                
                 username = _jwtReader.GetUsernameFromAccessToken(accessToken);
             }
             else if (subscriptionDto.WebAuthnPair is not null)
@@ -147,14 +134,9 @@ namespace AuthAPI.Controllers
                 var webAuthnPair = subscriptionDto.WebAuthnPair;
                 var credentialId = webAuthnPair?.CredentialId ?? string.Empty;
                 var credentialIdBytes = Convert.FromBase64String(Uri.UnescapeDataString(credentialId));
-                isCredentialsValid = await _userProvider.ValidateCredentials(credentialIdBytes, webAuthnPair?.Counter ?? 0);
                 
                 username = await _userProvider.GetUsernameByCredentialId(credentialIdBytes);
             }
-
-            if (!isCredentialsValid)
-                throw new ArgumentException
-                    ($"Exception:{nameof(WebPushController)}.{nameof(AddSubscription)}:Credentials are not valid.");
 
             User? user = await _authContext.Users
                 .Include(x => x.UserWebPushNotificationSubscriptions)
