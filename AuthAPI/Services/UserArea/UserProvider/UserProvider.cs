@@ -296,9 +296,9 @@ namespace AuthAPI.Services.UserArea.UserProvider
             using (AuthContext context = new(_configuration))
             {
                 var cred = await context.StoredCredentials
-                    .FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId) && c.SignatureCounter == counter - 1);
+                    .FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId) && c.SignatureCounter == counter);
 
-                cred.SignatureCounter = counter;
+                cred.SignatureCounter = counter + 1;
                 await context.SaveChangesAsync();
             }
         }
