@@ -6,8 +6,8 @@ using AuthAPI.Services.UserArea.UserProvider;
 using AuthAPI.Services.WebAuthn;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
-using LimpShared.Models.Authentication.Models;
-using LimpShared.Models.Authentication.Models.Credentials.Implementation;
+using EthachatShared.Models.Authentication.Models;
+using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AuthAPI.Controllers;

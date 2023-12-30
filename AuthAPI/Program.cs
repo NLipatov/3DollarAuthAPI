@@ -10,7 +10,7 @@ using AuthAPI.Services.JWT.JwtReading.Implementation;
 using AuthAPI.Services.RefreshHistoryService;
 using AuthAPI.Services.RefreshHistoryService.Implementation;
 using AuthAPI.Services.UserArea.PublicKeyManager;
-using LimpShared.Models.Authentication.Models.Credentials.Implementation;
+using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);

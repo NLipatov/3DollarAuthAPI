@@ -1,5 +1,5 @@
-﻿using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.Claims;
-using LimpShared.Models.Authentication.Models.UserAuthentication;
+﻿using EthachatShared.Models.Authentication.Models.AuthenticatedUserRepresentation.Claims;
+using EthachatShared.Models.Authentication.Models.UserAuthentication;
 
 namespace AuthAPI.DB.Models.ModelExtensions
 {

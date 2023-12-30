@@ -6,8 +6,8 @@ using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.ModelExtensions;
 using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.UserArea.UserProvider;
-using LimpShared.Models.Authentication.Models;
-using LimpShared.Models.Authentication.Models.Credentials.Implementation;
+using EthachatShared.Models.Authentication.Models;
+using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthAPI.Services.AuthenticationManager.Implementations.Jwt.Implementation;

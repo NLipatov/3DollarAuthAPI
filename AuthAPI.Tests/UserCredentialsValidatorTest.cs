@@ -2,7 +2,7 @@
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.UserArea.UserProvider;
 using AuthAPI.Services.UserCredentialsValidation;
-using LimpShared.Models.Authentication.Models.UserAuthentication;
+using EthachatShared.Models.Authentication.Models.UserAuthentication;
 using Microsoft.EntityFrameworkCore.Storage;
 using Moq;
 using Xunit;

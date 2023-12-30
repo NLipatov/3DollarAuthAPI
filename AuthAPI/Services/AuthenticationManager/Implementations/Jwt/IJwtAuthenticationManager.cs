@@ -1,7 +1,7 @@
 ﻿using AuthAPI.DB.Models;
 using AuthAPI.Services.AuthenticationManager;
-using LimpShared.Models.Authentication.Models;
-using LimpShared.Models.Authentication.Models.Credentials.Implementation;
+using EthachatShared.Models.Authentication.Models;
+using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
 
 namespace AuthAPI.Services.JWT.JwtAuthentication;
 

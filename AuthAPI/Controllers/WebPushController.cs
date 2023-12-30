@@ -5,7 +5,7 @@ using AuthAPI.DB.Models.WebPushNotifications;
 using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.UserArea.UserProvider;
-using LimpShared.Models.WebPushNotification;
+using EthachatShared.Models.WebPushNotification;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

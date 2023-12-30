@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthAPI", "AuthAPI\AuthAPI.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthAPI.Tests", "AuthAPI.Tests\AuthAPI.Tests.csproj", "{DDEA6828-19E4-45DB-A1EB-6F1D6FA8BBC4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LimpShared", "LimpShared\LimpShared\LimpShared.csproj", "{EFB8B543-224F-41A1-B8B0-EAFEC5C082F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EthachatShared", "EthachatShared\EthachatShared\EthachatShared.csproj", "{3230956D-1F5E-45DD-AEF4-AA483D25C5FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{DDEA6828-19E4-45DB-A1EB-6F1D6FA8BBC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDEA6828-19E4-45DB-A1EB-6F1D6FA8BBC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDEA6828-19E4-45DB-A1EB-6F1D6FA8BBC4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EFB8B543-224F-41A1-B8B0-EAFEC5C082F8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EFB8B543-224F-41A1-B8B0-EAFEC5C082F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EFB8B543-224F-41A1-B8B0-EAFEC5C082F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EFB8B543-224F-41A1-B8B0-EAFEC5C082F8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3230956D-1F5E-45DD-AEF4-AA483D25C5FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3230956D-1F5E-45DD-AEF4-AA483D25C5FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3230956D-1F5E-45DD-AEF4-AA483D25C5FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3230956D-1F5E-45DD-AEF4-AA483D25C5FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

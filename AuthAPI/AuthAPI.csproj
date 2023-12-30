@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EthachatShared\EthachatShared\EthachatShared.csproj" />
     <ProjectReference Include="..\LimpShared\LimpShared\LimpShared.csproj" />
   </ItemGroup>
 

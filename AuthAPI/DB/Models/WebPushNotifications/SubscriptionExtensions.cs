@@ -1,5 +1,5 @@
 ﻿using AuthAPI.DB.Models.Fido;
-using LimpShared.Models.WebPushNotification;
+using EthachatShared.Models.WebPushNotification;
 
 namespace AuthAPI.DB.Models.WebPushNotifications
 {

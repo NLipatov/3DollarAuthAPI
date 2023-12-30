@@ -1,4 +1,4 @@
-﻿using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
+﻿using EthachatShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 
 namespace AuthAPI.Services.UserArea.PublicKeyManager;
 

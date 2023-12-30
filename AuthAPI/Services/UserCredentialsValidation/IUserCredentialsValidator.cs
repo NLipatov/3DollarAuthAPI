@@ -1,4 +1,4 @@
-﻿using LimpShared.Models.Authentication.Models.UserAuthentication;
+﻿using EthachatShared.Models.Authentication.Models.UserAuthentication;
 
 namespace AuthAPI.Services.UserCredentialsValidation
 {

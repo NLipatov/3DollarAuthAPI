@@ -1,5 +1,5 @@
 ﻿#nullable disable
-using LimpShared.Models.Authentication.Models;
+using EthachatShared.Models.Authentication.Models;
 
 namespace AuthAPI.DB.Models
 {

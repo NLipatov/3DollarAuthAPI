@@ -1,6 +1,6 @@
 ﻿using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.Fido;
-using LimpShared.Models.Users;
+using EthachatShared.Models.Users;
 
 namespace AuthAPI.Services.UserArea.UserProvider;
 

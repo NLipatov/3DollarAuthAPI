@@ -1,6 +1,6 @@
 ﻿using AuthAPI.DB.Models;
 using AuthAPI.Services.Cryptography;
-using LimpShared.Models.Authentication.Models.UserAuthentication;
+using EthachatShared.Models.Authentication.Models.UserAuthentication;
 
 namespace AuthAPI.Services.ModelBuilder
 {

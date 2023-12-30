@@ -1,4 +1,4 @@
-﻿using LimpShared.Models.Authentication.Models;
+﻿using EthachatShared.Models.Authentication.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
@@ -8,9 +8,9 @@ using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.UserArea.PublicKeyManager;
 using AuthAPI.Services.UserArea.UserProvider;
-using LimpShared.Models.Authentication.Enums;
-using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
-using LimpShared.Models.Users;
+using EthachatShared.Models.Authentication.Enums;
+using EthachatShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
+using EthachatShared.Models.Users;
 
 namespace AuthAPI.Controllers
 {

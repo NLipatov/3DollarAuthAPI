@@ -1,6 +1,6 @@
 using AuthAPI.Services.UserArea.UserProvider;
-using LimpShared.Models.Authentication.Models;
-using LimpShared.Models.Authentication.Models.Credentials.Implementation;
+using EthachatShared.Models.Authentication.Models;
+using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
 
 namespace AuthAPI.Services.AuthenticationManager.Implementations.WebAuthn.Implementation;
 

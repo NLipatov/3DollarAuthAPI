@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 using AuthAPI.DB.Models;
-using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.Claims;
+using EthachatShared.Models.Authentication.Models.AuthenticatedUserRepresentation.Claims;
 
 namespace AuthAPI.Extensions
 {

@@ -1,7 +1,7 @@
 ﻿using AuthAPI.Services.JWT.Models;
 using AuthAPI.Services.UserCredentialsValidation;
-using LimpShared.Models.Authentication.Models;
-using LimpShared.Models.Authentication.Models.UserAuthentication;
+using EthachatShared.Models.Authentication.Models;
+using EthachatShared.Models.Authentication.Models.UserAuthentication;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using AuthAPI.Extensions;
@@ -10,9 +10,9 @@ using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.RefreshHistoryService;
 using AuthAPI.Services.UserArea.UserProvider;
-using LimpShared.Models.Authentication.Enums;
-using LimpShared.Models.Authentication.Models.Credentials.CredentialsDTO;
-using LimpShared.Models.Authentication.Models.Credentials.Implementation;
+using EthachatShared.Models.Authentication.Enums;
+using EthachatShared.Models.Authentication.Models.Credentials.CredentialsDTO;
+using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
 
 namespace AuthAPI.Controllers;
 

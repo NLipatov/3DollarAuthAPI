@@ -1,8 +1,8 @@
 using AuthAPI.DB.DBContext;
 using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.Fido;
-using LimpShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
-using LimpShared.Models.Authentication.Types;
+using EthachatShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
+using EthachatShared.Models.Authentication.Types;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.Services.UserArea.PublicKeyManager;

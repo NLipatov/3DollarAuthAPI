@@ -1,11 +1,11 @@
 ﻿using AuthAPI.DB.Models;
 using AuthAPI.DB.Models.Fido;
-using LimpShared.Models.Authentication.Enums;
-using LimpShared.Models.Authentication.Models;
-using LimpShared.Models.Authentication.Models.Credentials.CredentialsDTO;
-using LimpShared.Models.Authentication.Models.Credentials.Implementation;
-using LimpShared.Models.Authentication.Models.UserAuthentication;
-using LimpShared.Models.Users;
+using EthachatShared.Models.Authentication.Enums;
+using EthachatShared.Models.Authentication.Models;
+using EthachatShared.Models.Authentication.Models.Credentials.CredentialsDTO;
+using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
+using EthachatShared.Models.Authentication.Models.UserAuthentication;
+using EthachatShared.Models.Users;
 
 namespace AuthAPI.Services.UserArea.UserProvider;
 
