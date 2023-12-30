@@ -259,7 +259,7 @@ public class WebAuthnController : Controller
                 cancellationToken: cancellationToken);
 
             //6. Update counter
-            await _userProvider.UpdateCounter(clientResponse.Id, 1);
+            await _userProvider.UpdateCounter(clientResponse.Id, 0);
             
             // 7. return OK to client
             return Json(res);
