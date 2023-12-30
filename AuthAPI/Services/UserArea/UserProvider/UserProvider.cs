@@ -344,14 +344,20 @@ namespace AuthAPI.Services.UserArea.UserProvider
         {
             using (AuthContext context = new(_configuration))
             {
-                string? targetUserUsername = await context.Users
-                    .Select(x => x.Username)
-                    .FirstOrDefaultAsync(x => x.ToLower() == username.ToLower());
+                User? user = await context.Users.FirstOrDefaultAsync(x => x.Username == username);
+
+                if (user is not null)
+                    return user.AsUserExistDTO();
+                
+                FidoUser? fidoUser = await context.FidoUsers.FirstOrDefaultAsync(x => x.Name == username);
+                
+                if (fidoUser is not null)
+                    return fidoUser.AsUserExistDTO();
 
                 return new()
                 {
-                    IsExist = !string.IsNullOrWhiteSpace(targetUserUsername),
-                    Username = targetUserUsername ?? username
+                    IsExist = false,
+                    Username = username
                 };
             }
         }
