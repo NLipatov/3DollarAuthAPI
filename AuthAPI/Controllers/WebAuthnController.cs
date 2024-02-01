@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.Json;
 using AuthAPI.DB.Models.Fido;
@@ -71,8 +72,8 @@ public class WebAuthnController : Controller
             // 2. Get user existing keys by username
             //var existingKeys = DemoStorage.GetCredentialsByUser(user).Select(c => c.Descriptor).ToList();
 
-            List<PublicKeyCredentialDescriptor> existingKeys = (await _userProvider.GetCredentialsByUserAsync(user))
-                .Select(c => c.Descriptor).ToList();
+            List<byte[]> existingKeys = (await _userProvider.GetCredentialsByUserAsync(user))
+                .Select(c => c.DescriptorId).ToList();
 
             // 3. Create options
             var authenticatorSelection = new AuthenticatorSelection
@@ -95,7 +96,7 @@ public class WebAuthnController : Controller
                 Id = user.UserId,
                 DisplayName = user.DisplayName,
                 Name = user.Name,
-            }, existingKeys, authenticatorSelection, attType.ToEnum<AttestationConveyancePreference>(), exts);
+            }, existingKeys.Select(x=>new PublicKeyCredentialDescriptor(x)).ToArray(), authenticatorSelection, attType.ToEnum<AttestationConveyancePreference>(), exts);
 
             // 4. Temporarily store options, session/in-memory cache/redis/db
             //HttpContext.Session.SetString("fido2.attestationOptions", options.ToJson());
@@ -155,25 +156,25 @@ public class WebAuthnController : Controller
                 },
                 new FidoCredential
                 {
-                    Descriptor = new PublicKeyCredentialDescriptor(success.Result.CredentialId),
+                    DescriptorId = success.Result.Id,
                     PublicKey = success.Result.PublicKey,
                     UserHandle = success.Result.User.Id,
-                    SignatureCounter = success.Result.Counter,
-                    CredType = success.Result.CredType,
+                    SignatureCounter = success.Result.SignCount,
+                    CredType = success.Result.Type.ToString(),
                     RegDate = DateTime.UtcNow,
-                    AaGuid = success.Result.Aaguid
+                    AaGuid = success.Result.AaGuid
                 });
 
             // Remove Certificates from success because System.Text.Json cannot serialize them properly. See https://github.com/passwordless-lib/fido2-net-lib/issues/328
-            success.Result.AttestationCertificate = null;
-            success.Result.AttestationCertificateChain = null;
+            // success.Result.AttestationCertificate = null;
+            // success.Result.AttestationCertificateChain = null;
 
             // 4. return "ok" to the client
             return Json(success);
         }
         catch (Exception e)
         {
-            return Json(new Fido2.CredentialMakeResult(status: "error", errorMessage: FormatException(e),
+            return Json(new MakeNewCredentialResult(status: "error", errorMessage: FormatException(e),
                 result: null));
         }
     }
@@ -189,12 +190,12 @@ public class WebAuthnController : Controller
             {
                 // 1. Get user from DB
                 //var user = DemoStorage.GetUser(username) ?? throw new ArgumentException("Username was not registered");
-                FidoUser user = await _userProvider.GetFidoUserByUsernameAsync(username);
+                FidoUser? user = await _userProvider.GetFidoUserByUsernameAsync(username);
 
                 // 2. Get registered credentials from database
                 //existingCredentials = DemoStorage.GetCredentialsByUser(user).Select(c => c.Descriptor).ToList();
                 var existingCredential = (await _userProvider.GetCredentialsByUserAsync(user))
-                    .Select(c => c.Descriptor)
+                    .Select(c => c.DescriptorId)
                     .ToList();
             }
 
@@ -251,11 +252,17 @@ public class WebAuthnController : Controller
                 //var storedCreds = await DemoStorage.GetCredentialsByUserHandleAsync(args.UserHandle, cancellationToken);
                 var storedCreds =
                     await _userProvider.GetCredentialsByUserHandleAsync(args.UserHandle, cancellationToken);
-                return storedCreds.Exists(c => c.Descriptor.Id.SequenceEqual(args.CredentialId));
+                return storedCreds.Exists(c => c.DescriptorId.SequenceEqual(args.CredentialId));
             };
 
             // 5. Make the assertion
-            var res = await _fido2.MakeAssertionAsync(clientResponse, options, creds.PublicKey, storedCounter, callback,
+            var res = await _fido2.MakeAssertionAsync(
+                assertionResponse: clientResponse,
+                originalOptions: options ?? new AssertionOptions(),
+                storedPublicKey: creds.PublicKey,
+                storedDevicePublicKeys: new ReadOnlyCollection<byte[]>(new List<byte[]> {creds.PublicKey}), 
+                storedSignatureCounter:storedCounter,
+                isUserHandleOwnerOfCredentialIdCallback: callback,
                 cancellationToken: cancellationToken);
 
             //6. Update counter
@@ -266,7 +273,7 @@ public class WebAuthnController : Controller
         }
         catch (Exception e)
         {
-            return Json(new AssertionVerificationResult { Status = "error", ErrorMessage = FormatException(e) });
+            return Json(new { Status = "error", ErrorMessage = FormatException(e) });
         }
     }
 

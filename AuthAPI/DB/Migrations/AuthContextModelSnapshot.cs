@@ -17,7 +17,7 @@ namespace AuthAPI.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.5")
+                .HasAnnotation("ProductVersion", "8.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -36,7 +36,15 @@ namespace AuthAPI.Migrations
                         .HasColumnType("text");
 
                     b.Property<byte[]>("DescriptorId")
+                        .IsRequired()
                         .HasColumnType("bytea");
+
+                    b.Property<int[]>("DescriptorTransports")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.Property<int>("DescriptorType")
+                        .HasColumnType("integer");
 
                     b.Property<byte[]>("PublicKey")
                         .IsRequired()
@@ -57,8 +65,6 @@ namespace AuthAPI.Migrations
                         .HasColumnType("bytea");
 
                     b.HasKey("RecordId");
-
-                    b.HasIndex("DescriptorId");
 
                     b.ToTable("StoredCredentials");
                 });
@@ -214,34 +220,6 @@ namespace AuthAPI.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("WebPushNotificationSubscriptions");
-                });
-
-            modelBuilder.Entity("Fido2NetLib.Objects.PublicKeyCredentialDescriptor", b =>
-                {
-                    b.Property<byte[]>("Id")
-                        .HasColumnType("bytea")
-                        .HasAnnotation("Relational:JsonPropertyName", "id");
-
-                    b.Property<int[]>("Transports")
-                        .HasColumnType("integer[]")
-                        .HasAnnotation("Relational:JsonPropertyName", "transports");
-
-                    b.Property<int?>("Type")
-                        .HasColumnType("integer")
-                        .HasAnnotation("Relational:JsonPropertyName", "type");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PublicKeyCredentialDescriptor");
-                });
-
-            modelBuilder.Entity("AuthAPI.DB.Models.Fido.FidoCredential", b =>
-                {
-                    b.HasOne("Fido2NetLib.Objects.PublicKeyCredentialDescriptor", "Descriptor")
-                        .WithMany()
-                        .HasForeignKey("DescriptorId");
-
-                    b.Navigation("Descriptor");
                 });
 
             modelBuilder.Entity("AuthAPI.DB.Models.UserAccessRefreshEventLog", b =>

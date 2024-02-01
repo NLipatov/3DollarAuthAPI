@@ -99,7 +99,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
                 {
                     var credentialIdBytes = Convert.FromBase64String(credentialsDto.WebAuthnPair.CredentialId);
                     var request = await context.StoredCredentials
-                        .Where(c => c.Descriptor.Id.SequenceEqual(credentialIdBytes))
+                        .Where(c => c.DescriptorId.SequenceEqual(credentialIdBytes))
                         .Select(x => new
                         {
                             Username = x.UserId,
@@ -226,7 +226,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
             using (AuthContext context = new(_configuration))
             {
                 var cred = await context.StoredCredentials
-                    .FirstOrDefaultAsync(c => c.Descriptor.Id.SequenceEqual(credentialId));
+                    .FirstOrDefaultAsync(c => c.DescriptorId.SequenceEqual(credentialId));
 
                 if (cred is null)
                     return new List<FidoUser>();
@@ -251,7 +251,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
             using (AuthContext context = new(_configuration))
             {
                 return await context.StoredCredentials
-                    .FirstOrDefaultAsync(c => c.Descriptor.Id.SequenceEqual(credentialsId));
+                    .FirstOrDefaultAsync(c => c.DescriptorId.SequenceEqual(credentialsId));
             }
         }
 
@@ -262,7 +262,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
             {
                 return await context.StoredCredentials
                     .FirstOrDefaultAsync(c =>
-                        c.Descriptor.Id.SequenceEqual(credentialId) && c.SignatureCounter == counter) is not null;
+                        c.DescriptorId.SequenceEqual(credentialId) && c.SignatureCounter == counter) is not null;
             }
         }
 
@@ -284,7 +284,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
             using (AuthContext context = new(_configuration))
             {
                 var cred = await context.StoredCredentials
-                    .FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId));
+                    .FirstAsync(c => c.DescriptorId.SequenceEqual(credentialId));
 
                 cred.SignatureCounter = 0;
                 await context.SaveChangesAsync();
@@ -296,7 +296,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
             using (AuthContext context = new(_configuration))
             {
                 var cred = await context.StoredCredentials
-                    .FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId) && c.SignatureCounter == counter);
+                    .FirstAsync(c => c.DescriptorId.SequenceEqual(credentialId) && c.SignatureCounter == counter);
 
                 cred.SignatureCounter = counter + 1;
                 await context.SaveChangesAsync();
@@ -308,7 +308,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
             using (AuthContext context = new(_configuration))
             {
                 var cred = await context.StoredCredentials
-                    .FirstAsync(c => c.Descriptor.Id.SequenceEqual(credentialId));
+                    .FirstAsync(c => c.DescriptorId.SequenceEqual(credentialId));
 
                 return Encoding.UTF8.GetString(cred.UserId);
             }
@@ -318,7 +318,7 @@ namespace AuthAPI.Services.UserArea.UserProvider
         {
             using (AuthContext context = new(_configuration))
             {
-                return await context.FidoUsers.FirstOrDefaultAsync(u => u.Name == username);
+                return await context.FidoUsers.FirstOrDefaultAsync(x => x.Name == username);
             }
         }
 
