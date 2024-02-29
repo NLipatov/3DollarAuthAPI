@@ -10,7 +10,7 @@ namespace AuthAPI.DB.Models.Fido
         public byte[] UserId { get; set; }
         public byte[] DescriptorId { get; set; }
         public PublicKeyCredentialType DescriptorType { get; set; }
-        public AuthenticatorTransport[] DescriptorTransports { get; set; }
+        public AuthenticatorTransport[]? DescriptorTransports { get; set; }
         public byte[] PublicKey { get; set; }
         public byte[] UserHandle { get; set; }
         public uint SignatureCounter { get; set; }
