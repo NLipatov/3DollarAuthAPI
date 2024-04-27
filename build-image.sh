@@ -11,6 +11,6 @@ COPY ./ ./
 ENTRYPOINT ["dotnet", "AuthAPI.dll"]
 EOL
 
-sudo docker build -t auth-api distro
+sudo docker build -t etha-auth-api distro
 
 rm -rf distro
