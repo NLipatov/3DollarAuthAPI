@@ -121,8 +121,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("loose-CORS");
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();
