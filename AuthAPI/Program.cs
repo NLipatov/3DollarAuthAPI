@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AspNetCore.Proxy;
 using AuthAPI.DB.DBContext;
 using AuthAPI.Extensions;
@@ -27,12 +28,12 @@ builder.Services.AddDbContext<AuthContext>();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: myAllowSpecificOrigins,
-                      corsPolicyBuilder =>
-                      {
-                          corsPolicyBuilder
-                          .AllowAnyOrigin()
-                          .AllowAnyHeader();
-                      });
+        corsPolicyBuilder =>
+        {
+            corsPolicyBuilder
+                .AllowAnyOrigin()
+                .AllowAnyHeader();
+        });
 });
 
 builder.Services.AddSwaggerGen(options =>
@@ -79,19 +80,32 @@ builder.Services.AddMemoryCache();
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
-        {
-            // Set a short timeout for easy testing.
-            options.IdleTimeout = TimeSpan.FromMinutes(2);
-            options.Cookie.HttpOnly = true;
-            // Strict SameSite mode is required because the default mode used
-            // by ASP.NET Core 3 isn't understood by the Conformance Tool
-            // and breaks conformance testing
-            options.Cookie.SameSite = SameSiteMode.None;
-        });
+{
+    // Set a short timeout for easy testing.
+    options.IdleTimeout = TimeSpan.FromMinutes(2);
+    options.Cookie.HttpOnly = true;
+    // Strict SameSite mode is required because the default mode used
+    // by ASP.NET Core 3 isn't understood by the Conformance Tool
+    // and breaks conformance testing
+    options.Cookie.SameSite = SameSiteMode.None;
+});
+
+var envServerDomain = Environment.GetEnvironmentVariable("SERVER_DOMAIN");
+var serverDomain = string.IsNullOrWhiteSpace(envServerDomain)
+    ? builder.Configuration["fido2:serverDomain"]
+    : envServerDomain;
+Console.WriteLine($"FIDO2: Using server domain: {serverDomain}");
+
+var envOrigins = JsonSerializer.Deserialize<HashSet<string>>(Environment.GetEnvironmentVariable("ORIGINS") ?? "[]");
+var origins = envOrigins is not null && envOrigins.Any()
+    ? envOrigins
+    : builder.Configuration.GetSection("fido2:origins").Get<HashSet<string>>();
+Console.WriteLine($"FIDO2: Using origins: {string.Join(" ,", origins ?? new())}");
 
 builder.Services.AddFido2(options =>
 {
-    options.ServerDomain = builder.Configuration["fido2:serverDomain"];
+    options.Origins = origins;
+    options.ServerDomain = serverDomain;
     options.ServerName = "FIDO2 Test";
     options.Origins = builder.Configuration.GetSection("fido2:origins").Get<HashSet<string>>();
     options.TimestampDriftTolerance = builder.Configuration.GetValue<int>("fido2:timestampDriftTolerance");
@@ -99,10 +113,10 @@ builder.Services.AddFido2(options =>
 });
 
 #region CORS setup
-builder.Services.AddCors(p => p.AddPolicy("loose-CORS", corsPolicyBuilder =>
-{
-    corsPolicyBuilder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
-}));
+
+builder.Services.AddCors(p => p.AddPolicy("loose-CORS",
+    corsPolicyBuilder => { corsPolicyBuilder.WithOrigins("*").AllowAnyMethod().AllowAnyHeader(); }));
+
 #endregion
 
 var app = builder.Build();

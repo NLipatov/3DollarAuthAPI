@@ -5,10 +5,13 @@
       "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "SERVER_DOMAIN": "localhost",
+        "ORIGINS": "[ \"http://localhost:8000\" ]"
+        
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:1000"
+      "applicationUrl": "http://localhost:8080"
     }
   },
   "$schema": "https://json.schemastore.org/launchsettings.json",
