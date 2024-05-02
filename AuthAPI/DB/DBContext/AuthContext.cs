@@ -23,13 +23,27 @@ namespace AuthAPI.DB.DBContext
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(_configuration["ConnectionStrings:PostgreSQL_DEV"]);
+            optionsBuilder.UseNpgsql(GetConnectionString());
             base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+        }
+
+        private string GetConnectionString()
+        {
+            var dbConnectionString = _configuration["ConnectionStrings:PostgreSQL_DEV"] ??
+                                     throw new ArgumentException("Missing DB Connection string in appsettings.json");
+
+            var envDbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
+            
+            if (!string.IsNullOrWhiteSpace(envDbPassword))
+                dbConnectionString = dbConnectionString.Replace("password", envDbPassword);
+
+            Console.WriteLine("DbConnectionString: " + dbConnectionString);
+            return dbConnectionString;
         }
     }
 }
