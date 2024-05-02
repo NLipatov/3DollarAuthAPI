@@ -107,7 +107,6 @@ builder.Services.AddFido2(options =>
     options.Origins = origins;
     options.ServerDomain = serverDomain;
     options.ServerName = "FIDO2 Test";
-    options.Origins = builder.Configuration.GetSection("fido2:origins").Get<HashSet<string>>();
     options.TimestampDriftTolerance = builder.Configuration.GetValue<int>("fido2:timestampDriftTolerance");
     options.MDSCacheDirPath = builder.Configuration["fido2:MDSCacheDirPath"];
 });
