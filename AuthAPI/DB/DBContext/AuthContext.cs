@@ -42,7 +42,6 @@ namespace AuthAPI.DB.DBContext
             if (!string.IsNullOrWhiteSpace(envDbPassword))
                 dbConnectionString = dbConnectionString.Replace("password", envDbPassword);
 
-            Console.WriteLine("DbConnectionString: " + dbConnectionString);
             return dbConnectionString;
         }
     }
