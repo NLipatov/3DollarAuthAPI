@@ -28,7 +28,7 @@ public interface IUserProvider
     public Task<string> GetUsernameByCredentialId(byte[] credentialId);
     public Task<List<User>> GetUsersAsync();
     public Task<UserAuthenticationOperationResult> RegisterUser(UserAuthentication request, List<UserClaim>? claims);
-    public Task SaveRefreshTokenAsync(string username, RefreshTokenDto dto, JwtIssueReason issueReason = JwtIssueReason.NotActualised);
+    public Task SaveRefreshTokenAsync(string username, RefreshToken dto, JwtIssueReason issueReason = JwtIssueReason.NotActualised);
     public Task SaveRefreshTokenAsync(JwtPair jwtPair, User user);
     public Task<AuthResult> GetUsernameByCredentials(CredentialsDTO credentialsDto);
 }

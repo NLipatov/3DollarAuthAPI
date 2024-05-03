@@ -180,11 +180,11 @@ public class AuthController : Controller
 
         JwtPair jwtPair = _jwtManager.CreateJwtPair(user);
 
-        await _userProvider.SaveRefreshTokenAsync(request.Username, new RefreshTokenDto
+        await _userProvider.SaveRefreshTokenAsync(request.Username, new RefreshToken()
         {
-            UserAgent = request.UserAgent,
-            UserAgentId = request.UserAgentId,
-            RefreshToken = jwtPair.RefreshToken
+            Token = jwtPair.RefreshToken.Token,
+            Created = jwtPair.RefreshToken.Created,
+            Expires = jwtPair.RefreshToken.Expires
         }, JwtIssueReason.Login);
         // await _userProvider.SaveRefreshTokenAsync(request.Username, jwtPair.RefreshToken);
 

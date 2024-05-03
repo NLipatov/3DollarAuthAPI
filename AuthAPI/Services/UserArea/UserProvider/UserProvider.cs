@@ -120,32 +120,24 @@ namespace AuthAPI.Services.UserArea.UserProvider
 
         public async Task SaveRefreshTokenAsync
         (string username,
-            RefreshTokenDto dto,
+            RefreshToken dto,
             JwtIssueReason jwtIssueReason = JwtIssueReason.NotActualised)
         {
             using (AuthContext context = new(_configuration))
             {
                 var user = context.Users.First(x => x.Username == username);
 
-                if (dto.RefreshToken is null)
+                if (dto is null)
                     throw new ArgumentException
-                        ($"Given {nameof(dto.RefreshToken)} was null. Token pipeline is broken.");
+                        ($"Given {nameof(dto)} was null. Token pipeline is broken.");
 
-                if (dto.RefreshToken.Token == user.RefreshToken && jwtIssueReason == JwtIssueReason.RefreshToken)
+                if (dto.Token == user.RefreshToken && jwtIssueReason == JwtIssueReason.RefreshToken)
                     throw new ArgumentException($"Cannot update refresh token: " +
                                                 $"refresh token is the same that's stored in the database.");
 
-                user.RefreshToken = dto.RefreshToken.Token;
-                user.RefreshTokenExpires = dto.RefreshToken.Expires;
-                user.RefreshTokenCreated = dto.RefreshToken.Created;
-
-                await context.UserAccessRefreshEventLogs.AddAsync(new()
-                {
-                    User = user,
-                    UserAgent = dto.UserAgent,
-                    UserAgentId = dto.UserAgentId,
-                    IssueReason = jwtIssueReason
-                });
+                user.RefreshToken = dto.Token;
+                user.RefreshTokenExpires = dto.Expires;
+                user.RefreshTokenCreated = dto.Created;
 
                 await context.SaveChangesAsync();
             }
