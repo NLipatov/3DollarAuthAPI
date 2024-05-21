@@ -1,9 +1,9 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using AuthAPI.DB.Models;
-using AuthAPI.DB.Models.ModelExtensions;
 using AuthAPI.Services.JWT.Models;
+using Ethachat.Auth.Domain.Models;
+using Ethachat.Auth.Domain.Models.ModelExtensions;
 using Microsoft.IdentityModel.Tokens;
 
 namespace AuthAPI.Services.JWT.JwtReading.Implementation

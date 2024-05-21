@@ -1,6 +1,6 @@
 using AuthAPI.DB.DBContext;
-using AuthAPI.DB.Models;
-using AuthAPI.DB.Models.Fido;
+using Ethachat.Auth.Domain.Models;
+using Ethachat.Auth.Domain.Models.Fido;
 using EthachatShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using EthachatShared.Models.Authentication.Types;
 using Microsoft.EntityFrameworkCore;

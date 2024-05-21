@@ -1,5 +1,5 @@
-﻿using AuthAPI.DB.Models;
-using AuthAPI.Services.Cryptography;
+﻿using AuthAPI.Services.Cryptography;
+using Ethachat.Auth.Domain.Models;
 using EthachatShared.Models.Authentication.Models.UserAuthentication;
 
 namespace AuthAPI.Services.ModelBuilder

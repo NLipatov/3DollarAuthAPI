@@ -1,7 +1,7 @@
 ﻿#nullable disable
 using EthachatShared.Models.Authentication.Models;
 
-namespace AuthAPI.DB.Models
+namespace Ethachat.Auth.Domain.Models
 {
     public record UserAccessRefreshEventLog : AccessRefreshEventLog
     {

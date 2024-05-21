@@ -31,6 +31,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Ethachat.Auth.Domain\Ethachat.Auth.Domain.csproj" />
     <ProjectReference Include="..\EthachatShared\EthachatShared\EthachatShared.csproj" />
   </ItemGroup>
 

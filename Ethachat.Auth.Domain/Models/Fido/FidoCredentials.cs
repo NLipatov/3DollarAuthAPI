@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Fido2NetLib.Objects;
 
-namespace AuthAPI.DB.Models.Fido
+namespace Ethachat.Auth.Domain.Models.Fido
 {
     public class FidoCredential
     {

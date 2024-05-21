@@ -1,6 +1,6 @@
 ﻿#nullable disable
 
-namespace AuthAPI.DB.Models
+namespace Ethachat.Auth.Domain.Models
 {
     public class UserClaim
     {

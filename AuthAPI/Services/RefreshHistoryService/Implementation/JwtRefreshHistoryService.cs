@@ -1,5 +1,5 @@
 using AuthAPI.DB.DBContext;
-using AuthAPI.DB.Models;
+using Ethachat.Auth.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.Services.RefreshHistoryService.Implementation;

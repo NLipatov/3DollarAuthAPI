@@ -1,5 +1,5 @@
-﻿using AuthAPI.DB.Models;
-using AuthAPI.DB.Models.Fido;
+﻿using Ethachat.Auth.Domain.Models;
+using Ethachat.Auth.Domain.Models.Fido;
 using EthachatShared.Models.Users;
 
 namespace AuthAPI.Services.UserArea.UserProvider;

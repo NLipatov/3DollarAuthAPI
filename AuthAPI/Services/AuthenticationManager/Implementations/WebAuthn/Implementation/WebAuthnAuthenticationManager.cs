@@ -1,5 +1,4 @@
 using AuthAPI.Services.UserArea.UserProvider;
-using EthachatShared.Models.Authentication.Models;
 using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
 
 namespace AuthAPI.Services.AuthenticationManager.Implementations.WebAuthn.Implementation;

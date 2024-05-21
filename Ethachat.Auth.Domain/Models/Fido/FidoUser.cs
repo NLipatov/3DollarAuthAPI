@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using AuthAPI.DB.Models.WebPushNotifications;
+using Ethachat.Auth.Domain.Models.WebPushNotifications;
 using Fido2NetLib;
 
-namespace AuthAPI.DB.Models.Fido
+namespace Ethachat.Auth.Domain.Models.Fido
 {
     public class FidoUser
     {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using AuthAPI.DB.Models.WebPushNotifications;
+using Ethachat.Auth.Domain.Models.WebPushNotifications;
 
-namespace AuthAPI.DB.Models;
+namespace Ethachat.Auth.Domain.Models;
 
 public class User : IUser
 {

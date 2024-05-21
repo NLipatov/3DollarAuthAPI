@@ -1,6 +1,6 @@
-﻿using AuthAPI.DB.Models.Fido;
+﻿using Ethachat.Auth.Domain.Models.Fido;
 
-namespace AuthAPI.DB.Models.WebPushNotifications
+namespace Ethachat.Auth.Domain.Models.WebPushNotifications
 {
     public class UserWebPushNotificationSubscription
     {

@@ -1,6 +1,6 @@
 ﻿using System.Security.Claims;
 
-namespace AuthAPI.DB.Models.ModelExtensions
+namespace Ethachat.Auth.Domain.Models.ModelExtensions
 {
     public static class UserClaimExtensions
     {

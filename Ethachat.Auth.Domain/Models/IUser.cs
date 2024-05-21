@@ -1,4 +1,4 @@
-﻿namespace AuthAPI.DB.Models
+﻿namespace Ethachat.Auth.Domain.Models
 {
     public interface IUser
     {

@@ -1,6 +1,4 @@
-﻿using AuthAPI.DB.Models;
-using AuthAPI.Services.AuthenticationManager;
-using EthachatShared.Models.Authentication.Models;
+﻿using Ethachat.Auth.Domain.Models;
 using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
 
 namespace AuthAPI.Services.JWT.JwtAuthentication;

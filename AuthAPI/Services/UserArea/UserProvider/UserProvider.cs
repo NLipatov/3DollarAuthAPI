@@ -1,11 +1,11 @@
 ﻿using System.Text;
 using AuthAPI.DB.DBContext;
-using AuthAPI.DB.Models;
-using AuthAPI.DB.Models.Fido;
-using AuthAPI.DB.Models.ModelExtensions;
 using AuthAPI.Services.Cryptography;
 using AuthAPI.Services.ModelBuilder;
 using AuthAPI.Services.UserArea.UserProvider.ServiceExceptions;
+using Ethachat.Auth.Domain.Models;
+using Ethachat.Auth.Domain.Models.Fido;
+using Ethachat.Auth.Domain.Models.ModelExtensions;
 using EthachatShared.Models.Authentication.Enums;
 using EthachatShared.Models.Authentication.Models;
 using EthachatShared.Models.Authentication.Models.Credentials.CredentialsDTO;

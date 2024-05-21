@@ -1,10 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.ObjectModel;
-using System.Text;
-using System.Text.Json;
-using AuthAPI.DB.Models.Fido;
+﻿using System.Collections.ObjectModel;
 using AuthAPI.Services.UserArea.UserProvider;
 using AuthAPI.Services.WebAuthn;
+using Ethachat.Auth.Domain.Models.Fido;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using EthachatShared.Models.Authentication.Models;

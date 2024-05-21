@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
-using AuthAPI.DB.Models;
-using AuthAPI.DB.Models.ModelExtensions;
 using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.UserArea.PublicKeyManager;
 using AuthAPI.Services.UserArea.UserProvider;
+using Ethachat.Auth.Domain.Models;
+using Ethachat.Auth.Domain.Models.ModelExtensions;
 using EthachatShared.Models.Authentication.Enums;
 using EthachatShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using EthachatShared.Models.Users;

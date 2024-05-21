@@ -1,4 +1,4 @@
-﻿using AuthAPI.DB.Models;
+﻿using Ethachat.Auth.Domain.Models;
 
 namespace AuthAPI.Services.RefreshHistoryService;
 

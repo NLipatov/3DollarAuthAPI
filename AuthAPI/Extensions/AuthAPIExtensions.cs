@@ -1,6 +1,4 @@
 ﻿using AuthAPI.Services.Cryptography;
-using AuthAPI.Services.JWT;
-using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.UserArea.UserProvider;
 using AuthAPI.Services.UserCredentialsValidation;
 

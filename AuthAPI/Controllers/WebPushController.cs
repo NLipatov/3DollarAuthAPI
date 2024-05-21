@@ -1,10 +1,10 @@
 ﻿using AuthAPI.DB.DBContext;
-using AuthAPI.DB.Models;
-using AuthAPI.DB.Models.Fido;
-using AuthAPI.DB.Models.WebPushNotifications;
 using AuthAPI.Services.JWT.JwtAuthentication;
 using AuthAPI.Services.JWT.JwtReading;
 using AuthAPI.Services.UserArea.UserProvider;
+using Ethachat.Auth.Domain.Models;
+using Ethachat.Auth.Domain.Models.Fido;
+using Ethachat.Auth.Domain.Models.WebPushNotifications;
 using EthachatShared.Models.WebPushNotification;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -149,7 +149,7 @@ namespace AuthAPI.Controllers
             if (user is null && fidoUser is null)
             {
                 throw new ArgumentException
-                    ($"There's no {nameof(FidoUser)} or {nameof(DB.Models.User)} matching given credentials.");
+                    ($"There's no {nameof(FidoUser)} or {nameof(User)} matching given credentials.");
             }
             else if (user is not null)
             {

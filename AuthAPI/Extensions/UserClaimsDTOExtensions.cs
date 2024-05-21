@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using AuthAPI.DB.Models;
+using Ethachat.Auth.Domain.Models;
 using EthachatShared.Models.Authentication.Models.AuthenticatedUserRepresentation.Claims;
 
 namespace AuthAPI.Extensions

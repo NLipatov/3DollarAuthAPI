@@ -1,6 +1,6 @@
-﻿using AuthAPI.DB.Models;
-using AuthAPI.DB.Models.Fido;
-using AuthAPI.DB.Models.WebPushNotifications;
+﻿using Ethachat.Auth.Domain.Models;
+using Ethachat.Auth.Domain.Models.Fido;
+using Ethachat.Auth.Domain.Models.WebPushNotifications;
 using Microsoft.EntityFrameworkCore;
 
 namespace AuthAPI.DB.DBContext
