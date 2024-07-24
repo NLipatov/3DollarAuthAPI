@@ -10,6 +10,7 @@ using AuthAPI.Services.JWT.JwtReading.Implementation;
 using AuthAPI.Services.RefreshHistoryService;
 using AuthAPI.Services.RefreshHistoryService.Implementation;
 using AuthAPI.Services.UserArea.PublicKeyManager;
+using Ethachat.Auth.Infrastructure.Context;
 using Ethachat.Auth.Infrastructure.DB.DBContext;
 using EthachatShared.Models.Authentication.Models.Credentials.Implementation;
 using Microsoft.OpenApi.Models;
@@ -119,6 +120,11 @@ builder.Services.AddCors(p => p.AddPolicy("loose-CORS",
 #endregion
 
 var app = builder.Build();
+
+await using (var applyMigrationsScope = app.Services.CreateAsyncScope())
+{
+    await applyMigrationsScope.ApplyPendingMigrationsAsync<AuthContext>();
+}
 
 app.UseCors(myAllowSpecificOrigins);
 app.UseSession();
