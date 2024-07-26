@@ -4,12 +4,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using AuthAPI.Services.AuthenticationManager.Implementations.Jwt;
 using AuthAPI.Services.JWT.JwtReading;
-using AuthAPI.Services.UserArea.PublicKeyManager;
 using AuthAPI.Services.UserArea.UserProvider;
 using Ethachat.Auth.Domain.Models;
 using Ethachat.Auth.Domain.Models.ModelExtensions;
 using EthachatShared.Models.Authentication.Enums;
-using EthachatShared.Models.Authentication.Models.AuthenticatedUserRepresentation.PublicKey;
 using EthachatShared.Models.Users;
 
 namespace AuthAPI.Controllers
@@ -20,18 +18,15 @@ namespace AuthAPI.Controllers
     {
         private readonly IUserProvider _userProvider;
         private readonly IJwtReader _jwtReader;
-        private readonly IPublicKeyManager _publicKeyManager;
         private readonly IJwtAuthenticationManager _jwtManager;
 
         public UsersController
             (IUserProvider userProvider,
                 IJwtReader jwtReader,
-                IPublicKeyManager publicKeyManager,
                 IJwtAuthenticationManager jwtManager)
         {
             _userProvider = userProvider;
             _jwtReader = jwtReader;
-            _publicKeyManager = publicKeyManager;
             _jwtManager = jwtManager;
         }
 
@@ -97,12 +92,5 @@ namespace AuthAPI.Controllers
 
             return Ok(JsonSerializer.Serialize(result));
         }
-
-        [HttpPost("RSAPublic")]
-        public async Task SetRsaPublicKey(PublicKeyDto publicKeyDto) =>
-            await _publicKeyManager.SetRsaPublic(publicKeyDto);
-
-        [HttpGet("RSAPublic/{username}")]
-        public async Task<string?> GetRsaPublicKey(string username) => await _publicKeyManager.GetRsaPublic(username);
     }
 }
