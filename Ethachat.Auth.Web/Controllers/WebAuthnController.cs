@@ -274,29 +274,6 @@ public class WebAuthnController : Controller
         }
     }
 
-    [HttpPost("renewCredentialId")]
-    public async Task<AuthResult> RenewCredentialId([FromBody]RefreshCredentialIdDto credentialIdDto)
-    {
-        try
-        {
-            var credentialIdBytes = Convert.FromBase64String(credentialIdDto.CredentialId);
-            await _userProvider
-                .UpdateCounter(credentialIdBytes, credentialIdDto.Counter);
-
-            return new AuthResult
-            {
-                Result = AuthResultType.Success
-            };
-        }
-        catch (Exception e)
-        {
-            return new AuthResult
-            {
-                Result = AuthResultType.Fail
-            };
-        }
-    }
-
     [HttpGet("username/{credentialId}")]
     public async Task<string> GetUsernameByCredentialId(string credentialId)
     {
